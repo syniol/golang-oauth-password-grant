@@ -1,0 +1,83 @@
+package oauth
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type Username string
+
+func (u Username) Validate() error {
+	if len(u) > 32 {
+		return fmt.Errorf("maximum length of username is 32 characters")
+	}
+
+	if len(u) < 2 {
+		return fmt.Errorf("minimum length of username is 2 characters")
+	}
+
+	return nil
+}
+
+type Password string
+
+func (p Password) Validate() error {
+	if len(p) > 128 {
+		return fmt.Errorf("maximum length of password is 128 characters")
+	}
+
+	if len(p) < 8 {
+		return fmt.Errorf("minimum length of password is 8 characters")
+	}
+
+	return nil
+}
+
+type PasswordGrantRequest struct {
+	GrantType GrantType `json:"grant_type"`
+	Username  Username  `json:"username"`
+	Password  Password  `json:"password"`
+}
+
+type PasswordGrantResponse struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+	ExpiresIn   uint   `json:"expires_in"`
+}
+
+func (pgr *PasswordGrantRequest) ToString() string {
+	jsonFormat, _ := json.Marshal(pgr)
+
+	return string(jsonFormat)
+}
+
+// NewPasswordGrantRequest 127.0.0.1/oauth/token
+// POST /token HTTP/1.1
+func NewPasswordGrantRequest(payload []byte) (*PasswordGrantRequest, error) {
+	var req *PasswordGrantRequest
+
+	err := json.Unmarshal(payload, &req)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.GrantType != GrantTypePassword {
+		return nil, fmt.Errorf(
+			"grant type should be %q but %q is given",
+			GrantTypePassword,
+			req.GrantType,
+		)
+	}
+
+	err = req.Username.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	err = req.Password.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
