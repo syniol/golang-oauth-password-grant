@@ -22,4 +22,4 @@ curl --location --request POST '127.0.0.1:8080/oauth/token' \
 #### Credits
 Author: [Hadi Tajallaei](mailto:hadi@syniol.com)
 
-Copyright &copy; 2023. All rights reserved.
+Copyright &copy; 2023 Syniol Limited. All rights reserved.
