@@ -20,6 +20,6 @@ curl --location --request POST '127.0.0.1:8080/oauth/token' \
 
 
 #### Credits
-Author: [Hadi Tajallaei](mailto:hadi@syniol.com?subject=OAuth Password Grant Type in Golang)
+Author: [Hadi Tajallaei](mailto:hadi@syniol.com)
 
 Copyright &copy; 2023. All rights reserved.
