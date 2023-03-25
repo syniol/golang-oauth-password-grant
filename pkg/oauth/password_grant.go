@@ -3,6 +3,7 @@ package oauth
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 type Username string
@@ -32,6 +33,12 @@ func (p Password) Validate() error {
 
 	return nil
 }
+
+const (
+	PasswordGrantFieldGrantType = "grant_type"
+	PasswordGrantFieldUsername  = "username"
+	PasswordGrantFieldPassword  = "password"
+)
 
 type PasswordGrantRequest struct {
 	GrantType GrantType `json:"grant_type"`
@@ -80,4 +87,19 @@ func NewPasswordGrantRequest(payload []byte) (*PasswordGrantRequest, error) {
 	}
 
 	return req, nil
+}
+
+func NewPasswordGrantRequestWithForm(form url.Values) (*PasswordGrantRequest, error) {
+	payloadMap := map[string]interface{}{
+		PasswordGrantFieldGrantType: form.Get(PasswordGrantFieldGrantType),
+		PasswordGrantFieldUsername:  form.Get(PasswordGrantFieldUsername),
+		PasswordGrantFieldPassword:  form.Get(PasswordGrantFieldPassword),
+	}
+
+	payload, err := json.Marshal(payloadMap)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewPasswordGrantRequest(payload)
 }

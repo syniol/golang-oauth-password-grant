@@ -1,5 +1,9 @@
 package main
 
+import "oauth-password/internal"
+
 func main() {
-	println("Oauth Authentication Server Application")
+	println("🔥 Authentication Microservice is Fired Up!")
+
+	internal.NewServer()
 }
