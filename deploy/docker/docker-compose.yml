@@ -1,0 +1,25 @@
+version: "3"
+services:
+  app:
+    image: oauth_golang:1.18
+    build:
+      context: ../..
+      dockerfile: deploy/docker/golang/Dockerfile
+    container_name: oauth_golang_app
+    ports:
+      - "8080:8080"
+    networks:
+      - oauth_authentication
+
+  cache:
+    image: oauth_redis:6
+    build:
+      context: ../..
+      dockerfile: deploy/docker/redis/Dockerfile
+    container_name: oauth_redis_app
+    networks:
+      - oauth_authentication
+
+networks:
+  oauth_authentication:
+    driver: bridge
