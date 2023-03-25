@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"oauth-password/pkg/oauth"
 )
@@ -19,20 +20,29 @@ func NewServer() {
 		err := req.ParseForm()
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(fmt.Sprintf("error parsing form request: %s", err.Error())))
+			_, _ = rw.Write([]byte(fmt.Sprintf("error parsing form request: %s", err.Error())))
 
 			return
 		}
 
-		pgr, err := oauth.NewPasswordGrantRequestWithForm(req.Form)
+		_, err = oauth.NewPasswordGrantRequestWithForm(req.Form)
 		if err != nil {
-			rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
+			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
 
 			return
 		}
 
-		rw.Write([]byte(fmt.Sprintf("processed entry: %s", pgr.ToString())))
+		// TODO create a repository service to verify client credentials
+
+		resp := oauth.NewPasswordGrantResponse(
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIi",
+		)
+
+		_, _ = rw.Write([]byte(fmt.Sprintf("processed entry: %s", resp.ToString())))
 	})
 
-	http.ListenAndServe(":8080", sm)
+	err := http.ListenAndServe(":8080", sm)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 }

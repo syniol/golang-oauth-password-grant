@@ -46,16 +46,30 @@ type PasswordGrantRequest struct {
 	Password  Password  `json:"password"`
 }
 
+func (pgr *PasswordGrantRequest) ToString() string {
+	jsonFormat, _ := json.Marshal(pgr)
+
+	return string(jsonFormat)
+}
+
 type PasswordGrantResponse struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
 	ExpiresIn   uint   `json:"expires_in"`
 }
 
-func (pgr *PasswordGrantRequest) ToString() string {
+func (pgr *PasswordGrantResponse) ToString() string {
 	jsonFormat, _ := json.Marshal(pgr)
 
 	return string(jsonFormat)
+}
+
+func NewPasswordGrantResponse(token string) *PasswordGrantResponse {
+	return &PasswordGrantResponse{
+		AccessToken: token,
+		TokenType:   "Bearer",
+		ExpiresIn:   3600,
+	}
 }
 
 // NewPasswordGrantRequest 127.0.0.1/oauth/token
