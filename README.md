@@ -2,11 +2,19 @@
 Implementation of standard Oauth V2 for Password Grant type.
 
 
+## Clients API
+```text
+POST  /clients HTTP/1.1
+Host: 127.0.0.1:8080
+Content-Type: application/json
+```
+TODO
+
 ## Token API
 
 ```text
-POST 127.0.0.1:8080/oauth/token
-Host: 127.0.0.1
+POST  oauth/token HTTP/1.1
+Host: 127.0.0.1:8080
 Content-Type: application/x-www-form-urlencoded
 ```
 
