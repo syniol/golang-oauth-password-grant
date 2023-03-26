@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/ed25519"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
@@ -50,7 +51,7 @@ func NewCredentialPassword(password string) (*CredentialPassword, error) {
 	return &CredentialPassword{
 		PublicKey:  pemEncodedPublicKey.String(),
 		PrivateKey: pemEncodedPrivateKey.String(),
-		HashedPassword: hex.EncodeToString(
+		HashedPassword: encodeHash(
 			ed25519.Sign(private, []byte(password)),
 		),
 	}, nil
@@ -65,11 +66,23 @@ func (cred *CredentialPassword) PasswordVerify(inputPassword string) bool {
 }
 
 func decodeHash(hash string) []byte {
-	data := []byte(hash)
-	dst := make([]byte, hex.DecodedLen(len(data)))
-	hex.Decode(dst, data)
+	base64Hash := make([]byte, base64.StdEncoding.DecodedLen(len([]byte(hash))))
+	base64.StdEncoding.Decode(base64Hash, []byte(hash))
 
-	return dst
+	hexHash := make([]byte, hex.DecodedLen(len(base64Hash)))
+	hex.Decode(hexHash, base64Hash)
+
+	return hexHash
+}
+
+func encodeHash(plaintext []byte) string {
+	hexHash := make([]byte, hex.EncodedLen(len(plaintext)))
+	hex.Encode(hexHash, plaintext)
+
+	base64Hash := make([]byte, base64.StdEncoding.EncodedLen(len(hexHash)))
+	base64.StdEncoding.Encode(base64Hash, hexHash)
+
+	return string(base64Hash)
 }
 
 func decodePublicCert(cert string) []byte {
