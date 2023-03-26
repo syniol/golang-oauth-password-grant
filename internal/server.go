@@ -28,6 +28,12 @@ func NewServer() {
 		}
 
 		client, err := oauth.NewClient(reqBody)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte(err.Error()))
+
+			return
+		}
 
 		rw.Write([]byte(client.String()))
 	})
