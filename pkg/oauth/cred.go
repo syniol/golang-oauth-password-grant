@@ -32,7 +32,7 @@ func NewCredentialPassword(password string) (*CredentialPassword, error) {
 		Type:  "PUBLIC KEY",
 		Bytes: pubKeyBytes,
 	}); err != nil {
-		return nil, fmt.Errorf("failed to write data to %s file: %s", public, err.Error())
+		return nil, err
 	}
 
 	prvKeyBytes, err := x509.MarshalPKCS8PrivateKey(private)
@@ -45,7 +45,7 @@ func NewCredentialPassword(password string) (*CredentialPassword, error) {
 		Type:  "PRIVATE KEY",
 		Bytes: prvKeyBytes,
 	}); err != nil {
-		return nil, fmt.Errorf("failed to write data to %s file: %s", private, err.Error())
+		return nil, err
 	}
 
 	return &CredentialPassword{
@@ -86,9 +86,9 @@ func encodeHash(plaintext []byte) string {
 }
 
 func decodePublicCert(cert []byte) []byte {
-	out, _ := pem.Decode(ed25519.PublicKey(cert))
+	out, _ := pem.Decode(cert)
 
-	sss, _ := x509.ParsePKIXPublicKey(out.Bytes)
+	parsedPublicKey, _ := x509.ParsePKIXPublicKey(out.Bytes)
 
-	return sss.(ed25519.PublicKey)
+	return parsedPublicKey.(ed25519.PublicKey)
 }
