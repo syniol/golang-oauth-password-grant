@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -10,6 +11,26 @@ import (
 
 func NewServer() {
 	sm := http.NewServeMux()
+
+	sm.HandleFunc("/oauth/clients", func(rw http.ResponseWriter, req *http.Request) {
+		if req.Method != http.MethodPost {
+			rw.WriteHeader(http.StatusNotFound)
+
+			return
+		}
+
+		reqBody, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte(err.Error()))
+
+			return
+		}
+
+		client, err := oauth.NewClient(reqBody)
+
+		rw.Write([]byte(client.String()))
+	})
 
 	sm.HandleFunc("/oauth/token", func(rw http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
@@ -39,7 +60,7 @@ func NewServer() {
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIi",
 		)
 
-		_, _ = rw.Write([]byte(fmt.Sprintf("processed entry: %s", resp.ToString())))
+		_, _ = rw.Write([]byte(fmt.Sprintf("processed entry: %s", resp.String())))
 	})
 
 	err := http.ListenAndServe(":8080", sm)

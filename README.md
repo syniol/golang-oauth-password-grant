@@ -4,12 +4,19 @@ Implementation of standard Oauth V2 for Password Grant type.
 
 ## Clients API
 ```text
-POST  /clients HTTP/1.1
+POST  oauth/clients HTTP/1.1
 Host: 127.0.0.1:8080
 Content-Type: application/json
 ```
 
-TODO
+```bash
+curl --location --request POST '127.0.0.1:8080/oauth/clients' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "username": "johndoe1",
+    "password": "johnspassword1"
+}
+```
 
 ## Token API
 

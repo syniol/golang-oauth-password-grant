@@ -58,7 +58,7 @@ type PasswordGrantResponse struct {
 	ExpiresIn   uint   `json:"expires_in"`
 }
 
-func (pgr *PasswordGrantResponse) ToString() string {
+func (pgr *PasswordGrantResponse) String() string {
 	jsonFormat, _ := json.Marshal(pgr)
 
 	return string(jsonFormat)

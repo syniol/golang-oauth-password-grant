@@ -3,18 +3,17 @@ package oauth
 import "encoding/json"
 
 type Client struct {
-	Username string
-	Password string
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
-func NewClient(username, password string) (*Client, error) {
-	return &Client{
-		Username: "",
-		Password: "",
-	}, nil
+func (c *Client) String() string {
+	res, _ := json.Marshal(c)
+
+	return string(res)
 }
 
-func NewClientWithJSONPayload(payload []byte) (*Client, error) {
+func NewClient(payload []byte) (*Client, error) {
 	var client *Client
 
 	err := json.Unmarshal(payload, &client)
