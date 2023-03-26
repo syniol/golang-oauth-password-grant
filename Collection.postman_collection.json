@@ -1,0 +1,88 @@
+{
+	"info": {
+		"_postman_id": "8c2e7d7e-f96f-406c-99ff-632be03e1271",
+		"name": "Oauth Password Grant RESTfulAPI Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Token Request",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "default"
+						},
+						{
+							"key": "username",
+							"value": "johndoe1",
+							"type": "default"
+						},
+						{
+							"key": "password",
+							"value": "MyPassword!",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/oauth/token",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Clients [Create]",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"johndoe1\",\n    \"password\": \"johnspassword1\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "127.0.0.1:8080/oauth/clients",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"oauth",
+						"clients"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
