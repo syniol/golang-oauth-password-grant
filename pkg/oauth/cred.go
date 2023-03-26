@@ -49,25 +49,25 @@ func NewCredentialPassword(password string) (*CredentialPassword, error) {
 	}
 
 	return &CredentialPassword{
-		PublicKey:  pemEncodedPublicKey.String(),
-		PrivateKey: pemEncodedPrivateKey.String(),
+		PublicKey:  encodeHash(pemEncodedPublicKey.Bytes()),
+		PrivateKey: encodeHash(pemEncodedPrivateKey.Bytes()),
 		HashedPassword: encodeHash(
 			ed25519.Sign(private, []byte(password)),
 		),
 	}, nil
 }
 
-func (cred *CredentialPassword) PasswordVerify(inputPassword string) bool {
+func (cred *CredentialPassword) VerifyPassword(inputPassword string) bool {
 	return ed25519.Verify(
-		decodePublicCert(cred.PublicKey),
+		decodePublicCert(decodeHash([]byte(cred.PublicKey))),
 		[]byte(inputPassword),
-		decodeHash(cred.HashedPassword),
+		decodeHash([]byte(cred.HashedPassword)),
 	)
 }
 
-func decodeHash(hash string) []byte {
-	base64Hash := make([]byte, base64.StdEncoding.DecodedLen(len([]byte(hash))))
-	base64.StdEncoding.Decode(base64Hash, []byte(hash))
+func decodeHash(hash []byte) []byte {
+	base64Hash := make([]byte, base64.StdEncoding.DecodedLen(len(hash)))
+	base64.StdEncoding.Decode(base64Hash, hash)
 
 	hexHash := make([]byte, hex.DecodedLen(len(base64Hash)))
 	hex.Decode(hexHash, base64Hash)
@@ -85,7 +85,7 @@ func encodeHash(plaintext []byte) string {
 	return string(base64Hash)
 }
 
-func decodePublicCert(cert string) []byte {
+func decodePublicCert(cert []byte) []byte {
 	out, _ := pem.Decode(ed25519.PublicKey(cert))
 
 	sss, _ := x509.ParsePKIXPublicKey(out.Bytes)
