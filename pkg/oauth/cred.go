@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"encoding/pem"
-	"fmt"
 	"log"
 )
 
@@ -28,7 +27,6 @@ func NewCredentialPassword(password string) (*CredentialPassword, error) {
 	}
 
 	var buf bytes.Buffer
-	//Encode public key using PEM format
 	if err := pem.Encode(&buf, &pem.Block{
 		Type:  "PUBLIC KEY",
 		Bytes: pubBytes,
@@ -60,7 +58,7 @@ func NewCredentialPassword(password string) (*CredentialPassword, error) {
 
 func PasswordVerify(inputPassword string, cred CredentialPassword) bool {
 	return ed25519.Verify(
-		decodeHashedCert(cred.PublicKey),
+		decodePublicCert(cred.PublicKey),
 		[]byte(inputPassword),
 		decodeHash(cred.HashedPassword),
 	)
@@ -74,12 +72,10 @@ func decodeHash(hash string) []byte {
 	return dst
 }
 
-func decodeHashedCert(cert string) []byte {
+func decodePublicCert(cert string) []byte {
 	out, _ := pem.Decode(ed25519.PublicKey(cert))
 
-	sss, err := x509.ParsePKIXPublicKey(out.Bytes)
-
-	fmt.Println(err)
+	sss, _ := x509.ParsePKIXPublicKey(out.Bytes)
 
 	return sss.(ed25519.PublicKey)
 }
