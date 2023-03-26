@@ -6,6 +6,7 @@ services:
       context: ../..
       dockerfile: deploy/docker/golang/Dockerfile
     container_name: oauth_app
+    tty: true
     ports:
       - "8080:8080"
     networks:

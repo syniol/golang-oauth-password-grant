@@ -4,7 +4,8 @@ help:
 
 .PHONY: deploy
 deploy: # Deploys Services for OAuth Authentication
-	docker-compose -f ./deploy/docker/docker-compose.yml up -d --build
+	docker-compose -f ./deploy/docker/docker-compose.yml build
+	docker-compose -f ./deploy/docker/docker-compose.yml up -d
 
 
 .PHONY: destroy
