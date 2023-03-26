@@ -6,7 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"encoding/pem"
-	"log"
+	"fmt"
 )
 
 type CredentialPassword struct {
@@ -21,42 +21,42 @@ func NewCredentialPassword(password string) (*CredentialPassword, error) {
 		return nil, err
 	}
 
-	pubBytes, err := x509.MarshalPKIXPublicKey(public)
+	pubKeyBytes, err := x509.MarshalPKIXPublicKey(public)
 	if err != nil {
-		log.Fatalf("Unable to marshal public key: %v", err)
+		return nil, fmt.Errorf("unable to marshal public key: %s", err.Error())
 	}
 
-	var buf bytes.Buffer
-	if err := pem.Encode(&buf, &pem.Block{
+	var pemEncodedPublicKey bytes.Buffer
+	if err := pem.Encode(&pemEncodedPublicKey, &pem.Block{
 		Type:  "PUBLIC KEY",
-		Bytes: pubBytes,
+		Bytes: pubKeyBytes,
 	}); err != nil {
-		log.Fatalf("Failed to write data to %s file: %s", public, err)
+		return nil, fmt.Errorf("failed to write data to %s file: %s", public, err.Error())
 	}
 
-	privBytes, err := x509.MarshalPKCS8PrivateKey(private)
+	prvKeyBytes, err := x509.MarshalPKCS8PrivateKey(private)
 	if err != nil {
-		log.Fatalf("Unable to marshal private key: %v", err)
+		return nil, fmt.Errorf("unable to marshal private key: %s", err.Error())
 	}
 
-	var keyOut bytes.Buffer
-	if err := pem.Encode(&keyOut, &pem.Block{
+	var pemEncodedPrivateKey bytes.Buffer
+	if err := pem.Encode(&pemEncodedPrivateKey, &pem.Block{
 		Type:  "PRIVATE KEY",
-		Bytes: privBytes,
+		Bytes: prvKeyBytes,
 	}); err != nil {
-		log.Fatalf("Failed to write data to %s file: %s", private, err)
+		return nil, fmt.Errorf("failed to write data to %s file: %s", private, err.Error())
 	}
 
 	return &CredentialPassword{
-		PublicKey:  buf.String(),
-		PrivateKey: keyOut.String(),
+		PublicKey:  pemEncodedPublicKey.String(),
+		PrivateKey: pemEncodedPrivateKey.String(),
 		HashedPassword: hex.EncodeToString(
 			ed25519.Sign(private, []byte(password)),
 		),
 	}, nil
 }
 
-func PasswordVerify(inputPassword string, cred CredentialPassword) bool {
+func (cred *CredentialPassword) PasswordVerify(inputPassword string) bool {
 	return ed25519.Verify(
 		decodePublicCert(cred.PublicKey),
 		[]byte(inputPassword),

@@ -9,7 +9,7 @@ func TestNewCredentialPassword(t *testing.T) {
 			t.Fatal("it was not expecting an error but got", err.Error())
 		}
 
-		isVerified := PasswordVerify("Johnspa$$word", *actual)
+		isVerified := actual.PasswordVerify("Johnspa$$word")
 		if isVerified != true {
 			t.Error("it was expecting to be verified")
 		}
@@ -21,7 +21,7 @@ func TestNewCredentialPassword(t *testing.T) {
 			t.Fatal("it was not expecting an error but got", err.Error())
 		}
 
-		isVerified := PasswordVerify("Johnspa$$wordNotMatching", *actual)
+		isVerified := actual.PasswordVerify("Johnspa$$wordNotMatching")
 		if isVerified == true {
 			t.Error("it was expecting to not verify the incorrect password")
 		}
