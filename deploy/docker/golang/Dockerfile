@@ -21,7 +21,6 @@ RUN go build \
 RUN addgroup -S myapp \
     && adduser -S -u 10000 -g myapp myapp
 
-#RUN chmod +x restapi
 
 
 FROM scratch
@@ -29,7 +28,7 @@ FROM scratch
 COPY --from=builder /var/local/app/restapi .
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-COPY --from=0 /etc/passwd /etc/passwd
+COPY --from=builder /etc/passwd /etc/passwd
 USER myapp
 
 ENTRYPOINT ["/restapi"]
