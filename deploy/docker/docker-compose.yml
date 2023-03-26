@@ -5,7 +5,7 @@ services:
     build:
       context: ../..
       dockerfile: deploy/docker/golang/Dockerfile
-    container_name: oauth_golang_app
+    container_name: oauth_app
     ports:
       - "8080:8080"
     networks:
@@ -16,7 +16,7 @@ services:
     build:
       context: ../..
       dockerfile: deploy/docker/redis/Dockerfile
-    container_name: oauth_redis_app
+    container_name: oauth_cache
     networks:
       - oauth_authentication
 
