@@ -8,9 +8,12 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 type CredentialPassword struct {
+	ClientID       string `json:"clientId"`
 	PublicKey      string `json:"publicKey"`
 	PrivateKey     string `json:"privateKey"`
 	HashedPassword string `json:"hashedPassword"`
@@ -49,6 +52,7 @@ func NewCredentialPassword(password string) (*CredentialPassword, error) {
 	}
 
 	return &CredentialPassword{
+		ClientID:   uuid.NewString(),
 		PublicKey:  encodeHash(pemEncodedPublicKey.Bytes()),
 		PrivateKey: encodeHash(pemEncodedPrivateKey.Bytes()),
 		HashedPassword: encodeHash(

@@ -20,6 +20,10 @@ func (u Username) Validate() error {
 	return nil
 }
 
+func (u Username) String() string {
+	return string(u)
+}
+
 type Password string
 
 func (p Password) Validate() error {
@@ -32,6 +36,10 @@ func (p Password) Validate() error {
 	}
 
 	return nil
+}
+
+func (p Password) String() string {
+	return string(p)
 }
 
 const (
@@ -67,7 +75,7 @@ func (pgr *PasswordGrantResponse) String() string {
 func NewPasswordGrantResponse(token string) *PasswordGrantResponse {
 	return &PasswordGrantResponse{
 		AccessToken: token,
-		TokenType:   "Bearer",
+		TokenType:   TokenTypeBearer,
 		ExpiresIn:   3600,
 	}
 }
