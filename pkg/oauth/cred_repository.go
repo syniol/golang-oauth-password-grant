@@ -1,5 +1,5 @@
 package oauth
 
-func FindCredentialPasswordByUsername(id string) (*CredentialPassword, error) {
-	return &CredentialPassword{}, nil
+func FindCredentialPasswordByUsername(id string) (*Credential, error) {
+	return &Credential{}, nil
 }

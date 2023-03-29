@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -13,7 +12,7 @@ import (
 func NewServer() {
 	sm := http.NewServeMux()
 
-	sm.HandleFunc("/oauth/clients", func(rw http.ResponseWriter, req *http.Request) {
+	sm.HandleFunc("/oauth2/clients", func(rw http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
 			rw.WriteHeader(http.StatusNotFound)
 
@@ -44,14 +43,24 @@ func NewServer() {
 			return
 		}
 
-		credOut, _ := json.MarshalIndent(cred, "", "\t")
+		clientCred, err := oauth.NewClientCredential(cred)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte(err.Error()))
+
+			return
+		}
 
 		// Todo persis the data in main database (Postgres)
 
-		rw.Write(credOut)
+		resp := &oauth.ClientResponse{
+			ClientID: clientCred.ClientID,
+		}
+
+		rw.Write(resp.Bytes(true))
 	})
 
-	sm.HandleFunc("/oauth/token", func(rw http.ResponseWriter, req *http.Request) {
+	sm.HandleFunc("/oauth2/token", func(rw http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
 			rw.WriteHeader(http.StatusNotFound)
 
@@ -74,7 +83,7 @@ func NewServer() {
 		}
 
 		// Todo FindCredentialPasswordByUsername repository method
-		// Todo Connect to main database (Postgres to find a CredentialPassword from database)
+		// Todo Connect to main database (Postgres to find a Credential from database)
 		userCredentialPassword, err := oauth.FindCredentialPasswordByUsername(pgr.Username.String())
 		if err != nil {
 			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))

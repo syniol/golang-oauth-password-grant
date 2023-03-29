@@ -8,18 +8,15 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
-type CredentialPassword struct {
-	ClientID       string `json:"clientId"`
+type Credential struct {
 	PublicKey      string `json:"publicKey"`
 	PrivateKey     string `json:"privateKey"`
 	HashedPassword string `json:"hashedPassword"`
 }
 
-func NewCredentialPassword(password string) (*CredentialPassword, error) {
+func NewCredentialPassword(password string) (*Credential, error) {
 	public, private, err := ed25519.GenerateKey(nil)
 	if err != nil {
 		return nil, err
@@ -51,8 +48,7 @@ func NewCredentialPassword(password string) (*CredentialPassword, error) {
 		return nil, err
 	}
 
-	return &CredentialPassword{
-		ClientID:   uuid.NewString(),
+	return &Credential{
 		PublicKey:  encodeHash(pemEncodedPublicKey.Bytes()),
 		PrivateKey: encodeHash(pemEncodedPrivateKey.Bytes()),
 		HashedPassword: encodeHash(
@@ -61,7 +57,7 @@ func NewCredentialPassword(password string) (*CredentialPassword, error) {
 	}, nil
 }
 
-func (cred *CredentialPassword) VerifyPassword(inputPassword string) bool {
+func (cred *Credential) VerifyPassword(inputPassword string) bool {
 	return ed25519.Verify(
 		decodePublicCert(decodeHash([]byte(cred.PublicKey))),
 		[]byte(inputPassword),

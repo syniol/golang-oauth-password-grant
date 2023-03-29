@@ -27,7 +27,7 @@ services:
       dockerfile: deploy/docker/postgres/Dockerfile
     container_name: oauth_db
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: DummyPassword1
       POSTGRES_USER: oauth_usr
       POSTGRES_DB: oauth
     volumes:
