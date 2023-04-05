@@ -11,3 +11,8 @@ deploy: # Deploys Services for OAuth Authentication
 .PHONY: destroy
 destroy: # Destroys Services for OAuth Authentication
 	docker-compose -f ./deploy/docker/docker-compose.yml down
+
+
+.PHONY: nuke
+nuke: # Nukes all docker facilities for OAuth Authentication
+	docker-compose -f ./deploy/docker/docker-compose.yml down -v -rmi local

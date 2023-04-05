@@ -20,6 +20,7 @@ func (cr *ClientResponse) Bytes(prettyJSON bool) []byte {
 
 		return output
 	}
+
 	output, _ := json.Marshal(cr)
 
 	return output

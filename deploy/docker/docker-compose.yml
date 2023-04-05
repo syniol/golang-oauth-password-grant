@@ -6,19 +6,22 @@ services:
       context: ../..
       dockerfile: deploy/docker/golang/Dockerfile
     container_name: oauth_app
+    environment:
+      DATABASE_USR: oauth_usr
+      DATABASE_PWD: DummyPassword1
     ports:
       - "8080:8080"
     networks:
       - oauth_authentication
 
-  cache:
-    image: oauth_redis:6
-    build:
-      context: ../..
-      dockerfile: deploy/docker/redis/Dockerfile
-    container_name: oauth_cache
-    networks:
-      - oauth_authentication
+#  cache:
+#    image: oauth_redis:6
+#    build:
+#      context: ../..
+#      dockerfile: deploy/docker/redis/Dockerfile
+#    container_name: oauth_cache
+#    networks:
+#      - oauth_authentication
 
   database:
     image: oauth_postgres:14
@@ -26,6 +29,8 @@ services:
       context: ../..
       dockerfile: deploy/docker/postgres/Dockerfile
     container_name: oauth_db
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: DummyPassword1
       POSTGRES_USER: oauth_usr

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"oauth-password/internal/clients"
 
 	"oauth-password/pkg/oauth"
 )
@@ -51,7 +52,21 @@ func NewServer() {
 			return
 		}
 
-		// Todo persis the data in main database (Postgres)
+		repo, err := clients.NewRepository()
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte(err.Error()))
+
+			return
+		}
+
+		_, err = repo.InsertSingle(*clientCred)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte(err.Error()))
+
+			return
+		}
 
 		resp := &oauth.ClientResponse{
 			ClientID: clientCred.ClientID,
