@@ -5,8 +5,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"oauth-password/internal/clients"
 
+	_ "github.com/lib/pq"
+
+	"oauth-password/internal/clients"
 	"oauth-password/pkg/oauth"
 )
 
@@ -27,6 +29,7 @@ func NewServer() {
 
 			return
 		}
+		//defer req.Body.Close()
 
 		client, err := oauth.NewClientRequest(reqBody)
 		if err != nil {
@@ -44,7 +47,7 @@ func NewServer() {
 			return
 		}
 
-		clientCred, err := oauth.NewClientCredential(cred)
+		clientCred, err := oauth.NewClientCredential(cred, client.Username.String())
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			rw.Write([]byte(err.Error()))
@@ -52,9 +55,11 @@ func NewServer() {
 			return
 		}
 
-		repo, err := clients.NewRepository()
+		repo, err := clients.NewRepository(req.Context())
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
+
+			// todo give generic error handler
 			rw.Write([]byte(err.Error()))
 
 			return

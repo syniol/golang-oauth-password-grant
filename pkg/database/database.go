@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"os"
 )
 
 type Database struct {
@@ -14,16 +13,19 @@ type Database struct {
 
 var instance *Database
 
-func NewDatabase() (*Database, error) {
+func NewDatabase(ctx context.Context) (*Database, error) {
 	if instance != nil {
 		return instance, nil
 	}
 
 	connStr := fmt.Sprintf(
-		"postgresql://%s:%s@%s",
-		os.Getenv("DATABASE_USR"),
-		os.Getenv("DATABASE_PWD"),
-		"host.docker.internal",
+		"postgresql://%s:%s@%s/oauth?sslmode=disable",
+		//os.Getenv("DATABASE_USR"),
+		"oauth_usr",
+		//os.Getenv("DATABASE_PWD"),
+		"DummyPassword1",
+		"127.0.0.1",
+		//"host.docker.internal",
 	)
 	cnn, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -31,7 +33,7 @@ func NewDatabase() (*Database, error) {
 	}
 
 	instance = &Database{
-		Ctx: context.Background(),
+		Ctx: ctx,
 		DB:  cnn,
 	}
 

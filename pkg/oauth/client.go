@@ -60,10 +60,10 @@ type ClientCredential struct {
 	Username string `json:"username"`
 }
 
-func NewClientCredential(credential *Credential) (*ClientCredential, error) {
+func NewClientCredential(credential *Credential, username string) (*ClientCredential, error) {
 	return &ClientCredential{
 		Credential: *credential,
 		ClientID:   uuid.NewString(),
-		Username:   "",
+		Username:   username,
 	}, nil
 }
