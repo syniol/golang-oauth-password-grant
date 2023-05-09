@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -29,7 +30,7 @@ func NewServer() {
 
 			return
 		}
-		//defer req.Body.Close()
+		defer req.Body.Close()
 
 		client, err := oauth.NewClientRequest(reqBody)
 		if err != nil {
@@ -55,7 +56,7 @@ func NewServer() {
 			return
 		}
 
-		repo, err := clients.NewRepository(req.Context())
+		repo, err := clients.NewRepository(context.Background())
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 

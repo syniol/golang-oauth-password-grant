@@ -10,12 +10,12 @@ Content-Type: application/json
 ```
 
 ```bash
-curl --location --request POST '127.0.0.1:8080/oauth/clients' \
+curl --location --request POST '127.0.0.1:8080/oauth2/clients' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "username": "johndoe1",
     "password": "johnspassword1"
-}
+}'
 ```
 
 ## Token API
@@ -27,7 +27,7 @@ Content-Type: application/x-www-form-urlencoded
 ```
 
 ```bash
-curl --location --request POST '127.0.0.1:8080/oauth/token' \
+curl --location --request POST '127.0.0.1:8080/oauth2/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=password' \
 --data-urlencode 'username=johndoe1' \
