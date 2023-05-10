@@ -16,7 +16,11 @@ func NewServer() {
 	sm := http.NewServeMux()
 
 	sm.HandleFunc("/oauth2/clients", func(rw http.ResponseWriter, req *http.Request) {
-		validateRequestMethod(http.MethodPost, rw, req)
+		if req.Method != http.MethodPost {
+			rw.WriteHeader(http.StatusNotFound)
+
+			return
+		}
 
 		reqBody, err := ioutil.ReadAll(req.Body)
 		if err != nil {
@@ -79,7 +83,11 @@ func NewServer() {
 	})
 
 	sm.HandleFunc("/oauth2/token", func(rw http.ResponseWriter, req *http.Request) {
-		validateRequestMethod(http.MethodPost, rw, req)
+		if req.Method != http.MethodPost {
+			rw.WriteHeader(http.StatusNotFound)
+
+			return
+		}
 
 		err := req.ParseForm()
 		if err != nil {
@@ -120,17 +128,5 @@ func NewServer() {
 	err := http.ListenAndServe(":8080", sm)
 	if err != nil {
 		log.Fatal(err.Error())
-	}
-}
-
-func validateRequestMethod(
-	method string,
-	rw http.ResponseWriter,
-	req *http.Request,
-) {
-	if req.Method != method {
-		rw.WriteHeader(http.StatusNotFound)
-
-		return
 	}
 }
