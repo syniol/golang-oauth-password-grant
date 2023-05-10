@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -17,11 +16,7 @@ func NewServer() {
 	sm := http.NewServeMux()
 
 	sm.HandleFunc("/oauth2/clients", func(rw http.ResponseWriter, req *http.Request) {
-		if req.Method != http.MethodPost {
-			rw.WriteHeader(http.StatusNotFound)
-
-			return
-		}
+		validateRequestMethod(http.MethodPost, rw, req)
 
 		reqBody, err := ioutil.ReadAll(req.Body)
 		if err != nil {
@@ -56,7 +51,7 @@ func NewServer() {
 			return
 		}
 
-		repo, err := clients.NewRepository(context.Background())
+		repo, err := clients.NewRepository(nil)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 
@@ -69,6 +64,8 @@ func NewServer() {
 		_, err = repo.InsertSingle(*clientCred)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
+
+			// todo generic error message
 			rw.Write([]byte(err.Error()))
 
 			return
@@ -82,11 +79,7 @@ func NewServer() {
 	})
 
 	sm.HandleFunc("/oauth2/token", func(rw http.ResponseWriter, req *http.Request) {
-		if req.Method != http.MethodPost {
-			rw.WriteHeader(http.StatusNotFound)
-
-			return
-		}
+		validateRequestMethod(http.MethodPost, rw, req)
 
 		err := req.ParseForm()
 		if err != nil {
@@ -103,16 +96,17 @@ func NewServer() {
 			return
 		}
 
-		// Todo FindCredentialPasswordByUsername repository method
-		// Todo Connect to main database (Postgres to find a Credential from database)
-		userCredentialPassword, err := oauth.FindCredentialPasswordByUsername(pgr.Username.String())
+		repo, _ := clients.NewRepository(nil)
+
+		_, err = repo.FindByUsername(pgr.Username)
 		if err != nil {
 			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
 
 			return
 		}
 
-		userCredentialPassword.VerifyPassword(pgr.Password.String())
+		//userCredentialPassword.Data.Credential.VerifyPassword(pgr.Password.String())
+
 		// Todo Create a token and parse it to NewPasswordGrantResponse - No JWT! use the same algorithm used for encryption
 		// Todo persist a token with client id as a ref for Cache storage with 1 Hour expiry (Redis)
 
@@ -126,5 +120,17 @@ func NewServer() {
 	err := http.ListenAndServe(":8080", sm)
 	if err != nil {
 		log.Fatal(err.Error())
+	}
+}
+
+func validateRequestMethod(
+	method string,
+	rw http.ResponseWriter,
+	req *http.Request,
+) {
+	if req.Method != method {
+		rw.WriteHeader(http.StatusNotFound)
+
+		return
 	}
 }

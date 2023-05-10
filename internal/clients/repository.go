@@ -14,6 +14,10 @@ type Repository struct {
 }
 
 func NewRepository(ctx context.Context) (*Repository, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	db, err := database.NewDatabase(ctx)
 	if err != nil {
 		return nil, err
@@ -46,4 +50,27 @@ func (r *Repository) InsertSingle(
 	return &Entity{
 		Data: clientCredential,
 	}, nil
+}
+
+func (r *Repository) FindByUsername(username oauth.Username) (interface{}, error) {
+	rows, err := r.client.QueryContext(
+		r.client.Ctx,
+		fmt.Sprintf(
+			`SELECT data FROM public.client_credential WHERE data->>'username' = '%s';`,
+			username.String(),
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var clientCredential interface{}
+	for rows.Next() {
+		err = rows.Scan(&clientCredential)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &clientCredential, nil
 }

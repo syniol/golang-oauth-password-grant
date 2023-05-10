@@ -80,7 +80,7 @@ func NewPasswordGrantResponse(token string) *PasswordGrantResponse {
 	}
 }
 
-// NewPasswordGrantRequest 127.0.0.1/oauth/token
+// NewPasswordGrantRequest 127.0.0.1/oauth2/token
 // POST /token HTTP/1.1
 func NewPasswordGrantRequest(payload []byte) (*PasswordGrantRequest, error) {
 	var req *PasswordGrantRequest
