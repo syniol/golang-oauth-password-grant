@@ -14,15 +14,6 @@ services:
     networks:
       - oauth_authentication
 
-#  cache:
-#    image: oauth_redis:6
-#    build:
-#      context: ../..
-#      dockerfile: deploy/docker/redis/Dockerfile
-#    container_name: oauth_cache
-#    networks:
-#      - oauth_authentication
-
   database:
     image: oauth_postgres:14
     build:
@@ -31,6 +22,7 @@ services:
     container_name: oauth_db
     ports:
       - "5432:5432"
+    # todo remove port mapping for prod
     environment:
       POSTGRES_PASSWORD: DummyPassword1
       POSTGRES_USER: oauth_usr
@@ -40,8 +32,20 @@ services:
     networks:
       - oauth_authentication
 
+  cache:
+    image: oauth_redis:6
+    build:
+      context: ../..
+      dockerfile: deploy/docker/redis/Dockerfile
+    container_name: oauth_cache
+    volumes:
+      - cache_volume:/data
+    networks:
+      - oauth_authentication
+
 volumes:
   database_volume:
+  cache_volume:
 
 networks:
   oauth_authentication:

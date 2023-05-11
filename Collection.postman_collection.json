@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "8c2e7d7e-f96f-406c-99ff-632be03e1271",
-		"name": "Oauth Password Grant RESTfulAPI Collection",
+		"name": "Oauth 2 Password Grant RESTful API Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -34,7 +34,7 @@
 					]
 				},
 				"url": {
-					"raw": "127.0.0.1:8080/oauth/token",
+					"raw": "127.0.0.1:8080/oauth2/token",
 					"host": [
 						"127",
 						"0",
@@ -68,7 +68,7 @@
 					}
 				},
 				"url": {
-					"raw": "127.0.0.1:8080/oauth/clients",
+					"raw": "127.0.0.1:8080/oauth2/clients",
 					"host": [
 						"127",
 						"0",
