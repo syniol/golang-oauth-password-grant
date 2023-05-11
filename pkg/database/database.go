@@ -24,8 +24,8 @@ func NewDatabase(ctx context.Context) (*Database, error) {
 		"oauth_usr",
 		//os.Getenv("DATABASE_PWD"),
 		"DummyPassword1",
-		//"127.0.0.1",
-		"host.docker.internal",
+		"127.0.0.1",
+		//"host.docker.internal",
 	)
 	cnn, err := sql.Open("postgres", connStr)
 	if err != nil {

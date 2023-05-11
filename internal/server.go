@@ -106,14 +106,14 @@ func NewServer() {
 
 		repo, _ := clients.NewRepository(nil)
 
-		_, err = repo.FindByUsername(pgr.Username)
+		userCredentialPassword, err := repo.FindByUsername(pgr.Username)
 		if err != nil {
 			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
 
 			return
 		}
 
-		//userCredentialPassword.Data.Credential.VerifyPassword(pgr.Password.String())
+		userCredentialPassword.Data.Credential.VerifyPassword(pgr.Password.String())
 
 		// Todo Create a token and parse it to NewPasswordGrantResponse - No JWT! use the same algorithm used for encryption
 		// Todo persist a token with client id as a ref for Cache storage with 1 Hour expiry (Redis)

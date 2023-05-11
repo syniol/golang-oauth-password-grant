@@ -52,7 +52,7 @@ func (r *Repository) InsertSingle(
 	}, nil
 }
 
-func (r *Repository) FindByUsername(username oauth.Username) (interface{}, error) {
+func (r *Repository) FindByUsername(username oauth.Username) (*Entity, error) {
 	rows, err := r.client.QueryContext(
 		r.client.Ctx,
 		fmt.Sprintf(
@@ -64,13 +64,19 @@ func (r *Repository) FindByUsername(username oauth.Username) (interface{}, error
 		return nil, err
 	}
 
-	var clientCredential interface{}
+	var dataColumn []byte
 	for rows.Next() {
-		err = rows.Scan(&clientCredential)
+		err = rows.Scan(&dataColumn)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return &clientCredential, nil
+	var clientCredential oauth.ClientCredential
+	err = json.Unmarshal(dataColumn, &clientCredential)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Entity{Data: clientCredential}, nil
 }
