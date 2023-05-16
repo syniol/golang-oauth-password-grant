@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 )
 
 type Database struct {
@@ -12,6 +13,14 @@ type Database struct {
 }
 
 var instance *Database
+
+func host() string {
+	if len(os.Getenv("DEBUG")) > 0 {
+		return "127.0.0.1"
+	}
+
+	return "host.docker.internal"
+}
 
 func NewDatabase(ctx context.Context) (*Database, error) {
 	if instance != nil {
@@ -24,8 +33,13 @@ func NewDatabase(ctx context.Context) (*Database, error) {
 		"oauth_usr",
 		//os.Getenv("DATABASE_PWD"),
 		"DummyPassword1",
-		"127.0.0.1",
-		//"host.docker.internal",
+		func() string {
+			if len(os.Getenv("DEBUG")) > 0 {
+				return "127.0.0.1"
+			}
+
+			return "host.docker.internal"
+		}(),
 	)
 	cnn, err := sql.Open("postgres", connStr)
 	if err != nil {

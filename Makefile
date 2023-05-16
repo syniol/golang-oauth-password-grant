@@ -16,3 +16,8 @@ destroy: # Destroys Services for OAuth Authentication
 .PHONY: nuke
 nuke: # Nukes all docker facilities for OAuth Authentication
 	docker-compose -f ./deploy/docker/docker-compose.yml down --rmi local -v
+
+
+.PHONY: debug # Runs in debug mode
+debug:
+	docker-compose -f ./deploy/docker/docker-compose.yml -f ./deploy/docker/docker-compose.debug.yml up -d database cache

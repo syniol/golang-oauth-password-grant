@@ -113,10 +113,16 @@ func NewServer() {
 			return
 		}
 
-		userCredentialPassword.Data.Credential.VerifyPassword(pgr.Password.String())
+		isVerified := userCredentialPassword.Data.Credential.VerifyPassword(pgr.Password.String())
+		if !isVerified {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte(fmt.Sprintf("password: %s is invalid", pgr.Password.String())))
 
-		// Todo Create a token and parse it to NewPasswordGrantResponse - No JWT! use the same algorithm used for encryption
-		// Todo persist a token with client id as a ref for Cache storage with 1 Hour expiry (Redis)
+			return
+		}
+
+		// todo: Create a token and parse it to NewPasswordGrantResponse - No JWT! use the same algorithm used for encryption
+		// todo: Persist a token with client id as a ref for Cache storage with 1 Hour expiry (Redis)
 
 		resp := oauth.NewPasswordGrantResponse(
 			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIi",

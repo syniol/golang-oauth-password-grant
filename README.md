@@ -41,6 +41,16 @@ curl --location --request POST '127.0.0.1:8080/oauth2/token' \
 ```
 
 
+### Debug
+In order to run debugger you could create a config on your IDE and enable `DEBUG` env variable in your 
+local environment. You will need database & cache storage from docker; you could enable them with:
+
+```bash
+  make debug
+```
+
+
+
 #### Credits
 Author: [Hadi Tajallaei](mailto:hadi@syniol.com)
 

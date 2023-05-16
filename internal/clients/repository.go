@@ -72,6 +72,10 @@ func (r *Repository) FindByUsername(username oauth.Username) (*Entity, error) {
 		}
 	}
 
+	if len(dataColumn) == 0 {
+		return nil, fmt.Errorf("unable to find username: %s", username)
+	}
+
 	var clientCredential oauth.ClientCredential
 	err = json.Unmarshal(dataColumn, &clientCredential)
 	if err != nil {
