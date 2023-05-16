@@ -2,9 +2,10 @@ package database
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"os"
+
+	"database/sql"
 )
 
 type Database struct {
@@ -13,14 +14,6 @@ type Database struct {
 }
 
 var instance *Database
-
-func host() string {
-	if len(os.Getenv("DEBUG")) > 0 {
-		return "127.0.0.1"
-	}
-
-	return "host.docker.internal"
-}
 
 func NewDatabase(ctx context.Context) (*Database, error) {
 	if instance != nil {

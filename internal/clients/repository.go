@@ -56,7 +56,7 @@ func (r *Repository) FindByUsername(username oauth.Username) (*Entity, error) {
 	rows, err := r.client.QueryContext(
 		r.client.Ctx,
 		fmt.Sprintf(
-			`SELECT data FROM public.client_credential WHERE data->>'username' = '%s';`,
+			`SELECT id, data FROM public.client_credential WHERE data->>'username' = '%s';`,
 			username.String(),
 		),
 	)
@@ -64,9 +64,10 @@ func (r *Repository) FindByUsername(username oauth.Username) (*Entity, error) {
 		return nil, err
 	}
 
+	var id uint
 	var dataColumn []byte
 	for rows.Next() {
-		err = rows.Scan(&dataColumn)
+		err = rows.Scan(&id, &dataColumn)
 		if err != nil {
 			return nil, err
 		}
@@ -82,5 +83,8 @@ func (r *Repository) FindByUsername(username oauth.Username) (*Entity, error) {
 		return nil, err
 	}
 
-	return &Entity{Data: clientCredential}, nil
+	return &Entity{
+		ID:   id,
+		Data: clientCredential,
+	}, nil
 }

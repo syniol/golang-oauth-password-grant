@@ -34,6 +34,7 @@ curl --location --request POST '127.0.0.1:8080/oauth2/token' \
 --data-urlencode 'password=johnspassword1!'
 ```
 
+
 ## Up & Running
 
 ```bash

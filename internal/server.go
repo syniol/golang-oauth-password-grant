@@ -113,7 +113,7 @@ func NewServer() {
 			return
 		}
 
-		isVerified := userCredentialPassword.Data.Credential.VerifyPassword(pgr.Password.String())
+		isVerified := userCredentialPassword.Data.VerifyPassword(pgr.Password.String())
 		if !isVerified {
 			rw.WriteHeader(http.StatusBadRequest)
 			rw.Write([]byte(fmt.Sprintf("password: %s is invalid", pgr.Password.String())))
