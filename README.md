@@ -1,4 +1,4 @@
-# OAuth Password Grant Type in Golang
+# OAuth 2 Password Grant Type in Golang
 Implementation of standard Oauth V2 for Password Grant type in Golang 
 and its native HTTP server.
 
@@ -50,6 +50,9 @@ local environment. You will need database & cache storage from docker; you could
   make debug
 ```
 
+![img](https://github.com/syniol/golang-oauth-password-grant/assets/68777073/5c24392a-29df-41c2-8f11-fd32a1053222)
+
+
 
 ### Todos
  * [ ] SSL For Postgres
@@ -62,4 +65,4 @@ Author: [Hadi Tajallaei](mailto:hadi@syniol.com)
 
 Copyright &copy; 2023 Syniol Limited. All rights reserved.
 
-__Please see LICENSE file__
+_Please see a [LICENSE file](https://github.com/syniol/golang-oauth-password-grant/blob/main/LICENSE)_
