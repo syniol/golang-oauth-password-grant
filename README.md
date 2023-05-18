@@ -31,7 +31,7 @@ curl --location --request POST '127.0.0.1:8080/oauth2/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=password' \
 --data-urlencode 'username=johndoe1' \
---data-urlencode 'password=johnspassword1!'
+--data-urlencode 'password=johnspassword1'
 ```
 
 
