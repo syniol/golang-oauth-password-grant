@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"oauth-password/pkg/cache"
+	"strconv"
 
 	_ "github.com/lib/pq"
 
@@ -122,11 +124,11 @@ func NewServer() {
 		}
 
 		// todo: Create a token and parse it to NewPasswordGrantResponse - No JWT! use the same algorithm used for encryption
-		// todo: Persist a token with client id as a ref for Cache storage with 1 Hour expiry (Redis)
+		tokenMock := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIi"
+		cacheService, _ := cache.NewCache(nil)
+		_ = cacheService.Persist(strconv.Itoa(int(userCredentialPassword.ID)), tokenMock)
 
-		resp := oauth.NewPasswordGrantResponse(
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIi",
-		)
+		resp := oauth.NewPasswordGrantResponse(tokenMock)
 
 		_, _ = rw.Write([]byte(fmt.Sprintf("processed entry: %s", resp.String())))
 	})
