@@ -51,6 +51,11 @@ local environment. You will need database & cache storage from docker; you could
 ```
 
 
+### Todos
+ * [ ] SSL For Postgres
+ * [ ] SSL for Redis
+ * [ ] Cert for Creation of Token (Could be from Infra or Inside the code)
+
 
 #### Credits
 Author: [Hadi Tajallaei](mailto:hadi@syniol.com)
