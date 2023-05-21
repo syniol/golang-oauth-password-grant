@@ -26,6 +26,9 @@ RUN openssl req -x509 -newkey rsa:4096 -nodes -out server.crt -keyout server.key
 RUN addgroup -S myapp \
     && adduser -S -u 10000 -g myapp myapp
 
+RUN chown myapp:myapp server.crt  \
+    && chown myapp:myapp server.key
+
 
 
 FROM scratch
@@ -36,6 +39,6 @@ COPY --from=builder /var/local/app/server.key .
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=builder /etc/passwd /etc/passwd
-#USER myapp
+USER myapp
 
 ENTRYPOINT ["/restapi"]
