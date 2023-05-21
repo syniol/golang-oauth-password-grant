@@ -12,7 +12,7 @@ Content-Type: application/json
 
 __Request:__
 ```bash
-curl --location --request POST '127.0.0.1:8080/oauth2/clients' \
+curl -k --location --request POST 'https://127.0.0.1:8080/oauth2/clients' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "username": "johndoe1",
@@ -37,7 +37,7 @@ Content-Type: application/x-www-form-urlencoded
 
 __Request:__
 ```bash
-curl --location --request POST '127.0.0.1:8080/oauth2/token' \
+curl -k --location --request -k POST 'https://127.0.0.1:8080/oauth2/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=password' \
 --data-urlencode 'username=johndoe1' \
@@ -74,8 +74,10 @@ local environment. You will need database & cache storage from docker; you could
 
 ### Todos
  * [ ] SSL For Postgres
- * [ ] SSL for Redis
- * [ ] Cert for Creation of Token (Could be from Infra or Inside the code)
+ * [ ] SSL & Password for Redis
+ * [x] Cert for Creation of Token (Could be from Infra or Inside the code)
+ * [x] TLS Server Listener
+ * [ ] Use Docker Secret to share passwords
 
 
 #### Credits

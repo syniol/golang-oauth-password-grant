@@ -170,7 +170,7 @@ func NewServer() {
 		)
 	})
 
-	err := http.ListenAndServe(":8080", sm)
+	err := http.ListenAndServeTLS(":8080", "server.crt", "server.key", sm)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
