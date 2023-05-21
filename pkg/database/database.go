@@ -21,7 +21,7 @@ func NewDatabase(ctx context.Context) (*Database, error) {
 	}
 
 	connStr := fmt.Sprintf(
-		"postgresql://%s:%s@%s/oauth?sslmode=disable",
+		"postgresql://%s:%s@%s/oauth?sslmode=require",
 		//os.Getenv("DATABASE_USR"),
 		"oauth_usr",
 		//os.Getenv("DATABASE_PWD"),
