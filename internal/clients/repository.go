@@ -38,10 +38,8 @@ func (r *Repository) InsertSingle(
 
 	_, err = r.client.ExecContext(
 		r.client.Ctx,
-		fmt.Sprintf(
-			`INSERT INTO public.client_credential (id, data) VALUES (DEFAULT, '%s')`,
-			data,
-		),
+		`INSERT INTO public.client_credential (id, data) VALUES (DEFAULT, $1)`,
+		data,
 	)
 	if err != nil {
 		return nil, err
@@ -53,13 +51,15 @@ func (r *Repository) InsertSingle(
 }
 
 func (r *Repository) FindByUsername(username oauth.Username) (*Entity, error) {
-	rows, err := r.client.QueryContext(
+	stmt, err := r.client.PrepareContext(
 		r.client.Ctx,
-		fmt.Sprintf(
-			`SELECT id, data FROM public.client_credential WHERE data->>'username' = '%s';`,
-			username.String(),
-		),
+		`SELECT id, data FROM public.client_credential WHERE data->>'username' = $1;`,
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := stmt.QueryContext(r.client.Ctx, username.String())
 	if err != nil {
 		return nil, err
 	}
