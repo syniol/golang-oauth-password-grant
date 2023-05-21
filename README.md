@@ -1,15 +1,16 @@
 # OAuth 2 Password Grant Type in Golang
-Implementation of standard Oauth V2 for Password Grant type in Golang 
+Implementation of standard OAuth V2 for Password Grant type in Golang 
 and its native HTTP server.
 
 
 ## Clients API
 ```text
-POST  oauth/clients HTTP/1.1
+POST  oauth2/clients HTTP/1.1
 Host: 127.0.0.1:8080
 Content-Type: application/json
 ```
 
+__Request:__
 ```bash
 curl --location --request POST '127.0.0.1:8080/oauth2/clients' \
 --header 'Content-Type: application/json' \
@@ -19,19 +20,36 @@ curl --location --request POST '127.0.0.1:8080/oauth2/clients' \
 }'
 ```
 
+__Response:__
+```json
+{
+  "client_id": "a9a6b145-fafe-415c-a92e-c79cbd57567d"
+}
+```
+
+
 ## Token API
 ```text
-POST  oauth/token HTTP/1.1
+POST  oauth2/token HTTP/1.1
 Host: 127.0.0.1:8080
 Content-Type: application/x-www-form-urlencoded
 ```
 
+__Request:__
 ```bash
 curl --location --request POST '127.0.0.1:8080/oauth2/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=password' \
 --data-urlencode 'username=johndoe1' \
 --data-urlencode 'password=johnspassword1'
+```
+__Response:__
+```json
+{
+  "access_token": "MmVjZGFiNmY4Y2E2OTQ1ZWNmMGQyNmZlODZhYWM5YzFhNDliYzZiNzNkNmY2MjBmYThiMzM3NTEyODE1ZTc1YjNiZTcxODI3YjFjZDkzZDYyODRkODljZjdjMDU3NWY4M2Y2NjdiODg4ZTliZDIwMzlmMTRlYjkxZGEyYmFkMDM=",
+  "token_type": "Bearer",
+  "expires_in": 3600
+}
 ```
 
 

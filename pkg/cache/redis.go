@@ -39,10 +39,10 @@ func newRedisClient(ctx context.Context) Cache {
 
 			}
 
-			return "host.docker.internal:6379"
+			return "cache:6379"
 		}(),
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Password: "",
+		DB:       0, // use default DB
 	})
 
 	return &RedisAdapter{

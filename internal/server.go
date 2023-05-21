@@ -1,16 +1,16 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"oauth-password/pkg/cache"
-	"strconv"
 
 	_ "github.com/lib/pq"
 
 	"oauth-password/internal/clients"
+	"oauth-password/pkg/cache"
 	"oauth-password/pkg/oauth"
 )
 
@@ -60,9 +60,9 @@ func NewServer() {
 		repo, err := clients.NewRepository(nil)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte("error establishing database connection"))
 
-			// todo give generic error handler
-			rw.Write([]byte(err.Error()))
+			log.Println(err.Error())
 
 			return
 		}
@@ -94,23 +94,26 @@ func NewServer() {
 		err := req.ParseForm()
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			_, _ = rw.Write([]byte(fmt.Sprintf("error parsing form request: %s", err.Error())))
+			rw.Write([]byte(fmt.Sprintf("error parsing form request: %s", err.Error())))
 
 			return
 		}
 
 		pgr, err := oauth.NewPasswordGrantRequestWithForm(req.Form)
 		if err != nil {
-			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
 
 			return
 		}
 
-		repo, _ := clients.NewRepository(nil)
+		ctx := context.Background()
+
+		repo, _ := clients.NewRepository(ctx)
 
 		userCredentialPassword, err := repo.FindByUsername(pgr.Username)
 		if err != nil {
-			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
+			rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
 
 			return
 		}
@@ -120,17 +123,51 @@ func NewServer() {
 			rw.WriteHeader(http.StatusBadRequest)
 			rw.Write([]byte(fmt.Sprintf("password: %s is invalid", pgr.Password.String())))
 
+			log.Println(err.Error())
+
 			return
 		}
 
-		// todo: Create a token and parse it to NewPasswordGrantResponse - No JWT! use the same algorithm used for encryption
-		tokenMock := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIi"
-		cacheService, _ := cache.NewCache(nil)
-		_ = cacheService.Persist(strconv.Itoa(int(userCredentialPassword.ID)), tokenMock)
+		tokeniser, err := oauth.NewToken()
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte("unexpected error for token creation service"))
 
-		resp := oauth.NewPasswordGrantResponse(tokenMock)
+			log.Println(err.Error())
 
-		_, _ = rw.Write([]byte(fmt.Sprintf("processed entry: %s", resp.String())))
+			return
+		}
+
+		token := string(tokeniser.Sign())
+
+		cacheService, err := cache.NewCache(ctx)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte("unexpected error for token storage service"))
+
+			log.Println(err.Error())
+
+			return
+		}
+
+		err = cacheService.Persist(
+			userCredentialPassword.Data.ClientID,
+			token,
+		)
+
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			rw.Write([]byte("unexpected error for token storage service"))
+
+			log.Println(err.Error())
+
+			return
+		}
+
+		rw.Write(oauth.
+			NewPasswordGrantResponse(token).
+			Byte(true),
+		)
 	})
 
 	err := http.ListenAndServe(":8080", sm)

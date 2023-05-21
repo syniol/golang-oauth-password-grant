@@ -66,6 +66,18 @@ type PasswordGrantResponse struct {
 	ExpiresIn   uint   `json:"expires_in"`
 }
 
+func (pgr *PasswordGrantResponse) Byte(prettyJSON bool) []byte {
+	if prettyJSON {
+		output, _ := json.MarshalIndent(pgr, "", "\t")
+
+		return output
+	}
+
+	output, _ := json.Marshal(pgr)
+
+	return output
+}
+
 func (pgr *PasswordGrantResponse) String() string {
 	jsonFormat, _ := json.Marshal(pgr)
 

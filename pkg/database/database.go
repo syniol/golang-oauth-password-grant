@@ -31,7 +31,7 @@ func NewDatabase(ctx context.Context) (*Database, error) {
 				return "127.0.0.1"
 			}
 
-			return "host.docker.internal"
+			return "database"
 		}(),
 	)
 	cnn, err := sql.Open("postgres", connStr)
