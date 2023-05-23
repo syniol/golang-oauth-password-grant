@@ -74,8 +74,8 @@ local environment. You will need database & cache storage from docker; you could
 
 
 ### Todos
- * [ ] SSL For Postgres
- * [ ] SSL & Password for Redis
+ * [x] SSL For Postgres
+ * [x] SSL & Password for Redis
  * [x] Cert for Creation of Token (Could be from Infra or Inside the code)
  * [x] TLS Server Listener
  * [ ] Use Docker Secret to share passwords

@@ -14,7 +14,6 @@ RUN chmod 0600 /var/lib/postgresql/server.key \
 RUN chown postgres:postgres /var/lib/postgresql/server.key \
     && chown postgres:postgres /var/lib/postgresql/server.crt
 
-
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 CMD [ "-c", "ssl=on" , "-c", "ssl_cert_file=/var/lib/postgresql/server.crt", "-c",\

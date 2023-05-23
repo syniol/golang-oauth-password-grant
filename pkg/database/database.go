@@ -20,6 +20,7 @@ func NewDatabase(ctx context.Context) (*Database, error) {
 		return instance, nil
 	}
 
+	// https://www.postgresql.org/docs/current/libpq-ssl.html
 	connStr := fmt.Sprintf(
 		"postgresql://%s:%s@%s/oauth?sslmode=require",
 		//os.Getenv("DATABASE_USR"),
