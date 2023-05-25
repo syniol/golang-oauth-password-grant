@@ -41,7 +41,7 @@ func newRedisClient(ctx context.Context) Cache {
 
 			return "cache:6379"
 		}(),
-		Password: "SyniolIsTheFuture",
+		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       0, // use default DB
 	})
 

@@ -13,7 +13,6 @@ RUN apk add --update-cache openssl \
     && rm gen-test-certs.sh
 
 ENV ALLOW_EMPTY_PASSWORD=false
-ENV REDIS_PASSWORD=SyniolIsTheFuture
 ENV REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
 ENV REDIS_TLS_CERT_FILE=/usr/local/etc/redis/tls/redis.crt
 ENV REDIS_TLS_KEY_FILE=/usr/local/etc/redis/tls/redis.key

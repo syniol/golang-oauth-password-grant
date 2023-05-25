@@ -7,8 +7,10 @@ services:
       dockerfile: deploy/docker/golang/Dockerfile
     container_name: oauth_app
     environment:
-      DATABASE_USR: oauth_usr
-      DATABASE_PWD: DummyPassword1
+      POSTGRES_USER: oauth_usr
+      POSTGRES_PASSWORD: DummyPassword1
+      POSTGRES_DB: oauth
+      REDIS_PASSWORD: SyniolIsTheFuture
     ports:
       - "8080:8080"
     networks:
@@ -25,7 +27,7 @@ services:
       POSTGRES_USER: oauth_usr
       POSTGRES_DB: oauth
     volumes:
-      - database_volume:/var/lib/postgresql/data
+      - database_data:/var/lib/postgresql/data
     networks:
       - oauth_authentication
 
@@ -35,14 +37,16 @@ services:
       context: ../..
       dockerfile: deploy/docker/redis/Dockerfile
     container_name: oauth_cache
+    environment:
+      REDIS_PASSWORD: SyniolIsTheFuture
     volumes:
-      - cache_volume:/data
+      - cache_data:/data
     networks:
       - oauth_authentication
 
 volumes:
-  database_volume:
-  cache_volume:
+  database_data:
+  cache_data:
 
 networks:
   oauth_authentication:

@@ -22,11 +22,10 @@ func NewDatabase(ctx context.Context) (*Database, error) {
 
 	// https://www.postgresql.org/docs/current/libpq-ssl.html
 	connStr := fmt.Sprintf(
-		"postgresql://%s:%s@%s/oauth?sslmode=require",
-		//os.Getenv("DATABASE_USR"),
-		"oauth_usr",
-		//os.Getenv("DATABASE_PWD"),
-		"DummyPassword1",
+		"postgresql://%s:%s@%s/%s?sslmode=require",
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_DB"),
 		func() string {
 			if len(os.Getenv("DEBUG")) > 0 {
 				return "127.0.0.1"
