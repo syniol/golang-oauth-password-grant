@@ -1,5 +1,9 @@
 version: "3"
 services:
+  app:
+    ports:
+      - "8080:80"
+
   database:
     ports:
       - "5432:5432"

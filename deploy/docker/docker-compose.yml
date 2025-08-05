@@ -1,5 +1,23 @@
 version: "3"
 services:
+  proxy:
+    image: oauth_nginx:latest
+    build:
+      context: ../..
+      dockerfile: deploy/docker/nginx/Dockerfile
+    container_name: oauth_proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    healthcheck:
+      test: curl -s -o /dev/null -w "%{http_code}" http://proxy/healthz | grep 200 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - oauth_gateway
+
   app:
     image: oauth_golang:1.18
     build:
@@ -11,9 +29,13 @@ services:
       POSTGRES_PASSWORD: DummyPassword1
       POSTGRES_DB: oauth
       REDIS_PASSWORD: SyniolIsTheFuture
-    ports:
-      - "8080:8080"
+    healthcheck:
+      test: curl -s -o /dev/null -w "%{http_code}" http://app:8080/healthz | grep 200 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 3
     networks:
+      - oauth_gateway
       - oauth_authentication
 
   database:
@@ -26,6 +48,11 @@ services:
       POSTGRES_PASSWORD: DummyPassword1
       POSTGRES_USER: oauth_usr
       POSTGRES_DB: oauth
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     volumes:
       - database_data:/var/lib/postgresql/data
     networks:
@@ -39,6 +66,11 @@ services:
     container_name: oauth_cache
     environment:
       REDIS_PASSWORD: SyniolIsTheFuture
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli --tls --cert $${REDIS_TLS_CERT_FILE} --key $${REDIS_TLS_KEY_FILE} --cacert $${REDIS_TLS_CA_FILE} --insecure PING | grep PONG" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     volumes:
       - cache_data:/data
     networks:
@@ -49,5 +81,7 @@ volumes:
   cache_data:
 
 networks:
+  oauth_gateway:
+    driver: bridge
   oauth_authentication:
     driver: bridge

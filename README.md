@@ -1,4 +1,6 @@
-# OAuth 2 Password Grant Type in Golang
+# OAuth 2.1 Password Grant Type in Golang
+![workflow](https://github.com/syniol/golang-oauth-password-grant/actions/workflows/makefile.yml/badge.svg)
+
 Implementation of standard OAuth V2 for Password Grant type in Golang 
 and its native HTTP server.
 

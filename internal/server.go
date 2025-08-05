@@ -17,6 +17,10 @@ import (
 func NewServer() {
 	sm := http.NewServeMux()
 
+	sm.HandleFunc("/healthz", func(wr http.ResponseWriter, req *http.Request) {
+		_, _ = wr.Write([]byte("ok"))
+	})
+
 	sm.HandleFunc("/oauth2/clients", func(rw http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
 			rw.WriteHeader(http.StatusNotFound)
@@ -27,7 +31,7 @@ func NewServer() {
 		reqBody, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(err.Error()))
+			_, _ = rw.Write([]byte(err.Error()))
 
 			return
 		}
@@ -36,7 +40,7 @@ func NewServer() {
 		client, err := oauth.NewClientRequest(reqBody)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(err.Error()))
+			_, _ = rw.Write([]byte(err.Error()))
 
 			return
 		}
@@ -44,7 +48,7 @@ func NewServer() {
 		cred, err := oauth.NewCredentialPassword(client.Password.String())
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(err.Error()))
+			_, _ = rw.Write([]byte(err.Error()))
 
 			return
 		}
@@ -52,7 +56,7 @@ func NewServer() {
 		clientCred, err := oauth.NewClientCredential(cred, client.Username.String())
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(err.Error()))
+			_, _ = rw.Write([]byte(err.Error()))
 
 			return
 		}
@@ -60,7 +64,7 @@ func NewServer() {
 		repo, err := clients.NewRepository(nil)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte("error establishing database connection"))
+			_, _ = rw.Write([]byte("error establishing database connection"))
 
 			log.Println(err.Error())
 
@@ -71,8 +75,7 @@ func NewServer() {
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 
-			// todo generic error message
-			rw.Write([]byte(err.Error()))
+			_, _ = rw.Write([]byte(err.Error()))
 
 			return
 		}
@@ -81,7 +84,7 @@ func NewServer() {
 			ClientID: clientCred.ClientID,
 		}
 
-		rw.Write(resp.Bytes(true))
+		_, _ = rw.Write(resp.Bytes(true))
 	})
 
 	sm.HandleFunc("/oauth2/token", func(rw http.ResponseWriter, req *http.Request) {
@@ -94,7 +97,7 @@ func NewServer() {
 		err := req.ParseForm()
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(fmt.Sprintf("error parsing form request: %s", err.Error())))
+			_, _ = rw.Write([]byte(fmt.Sprintf("error parsing form request: %s", err.Error())))
 
 			return
 		}
@@ -102,7 +105,7 @@ func NewServer() {
 		pgr, err := oauth.NewPasswordGrantRequestWithForm(req.Form)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
+			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
 
 			return
 		}
@@ -113,7 +116,7 @@ func NewServer() {
 
 		userCredentialPassword, err := repo.FindByUsername(pgr.Username)
 		if err != nil {
-			rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
+			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
 
 			return
 		}
@@ -121,7 +124,7 @@ func NewServer() {
 		isVerified := userCredentialPassword.Data.VerifyPassword(pgr.Password.String())
 		if !isVerified {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(fmt.Sprintf("password: %s is invalid", pgr.Password.String())))
+			_, _ = rw.Write([]byte(fmt.Sprintf("password: %s is invalid", pgr.Password.String())))
 
 			log.Println(err.Error())
 
@@ -131,7 +134,7 @@ func NewServer() {
 		tokeniser, err := oauth.NewToken()
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte("unexpected error for token creation service"))
+			_, _ = rw.Write([]byte("unexpected error for token creation service"))
 
 			log.Println(err.Error())
 
@@ -143,7 +146,7 @@ func NewServer() {
 		cacheService, err := cache.NewCache(ctx)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte("unexpected error for token storage service"))
+			_, _ = rw.Write([]byte("unexpected error for token storage service"))
 
 			log.Println(err.Error())
 
@@ -157,7 +160,7 @@ func NewServer() {
 
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte("unexpected error for token storage service"))
+			_, _ = rw.Write([]byte("unexpected error for token storage service"))
 
 			log.Println(err.Error())
 
