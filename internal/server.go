@@ -2,8 +2,8 @@ package internal
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -28,32 +28,42 @@ func NewServer() {
 			return
 		}
 
-		reqBody, err := ioutil.ReadAll(req.Body)
+		var clientRequest *oauth.ClientRequest
+		err := json.NewDecoder(req.Body).Decode(clientRequest)
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			log.Println(err)
+
+			_, _ = rw.Write([]byte("Unable to parse request body, please ensure request body is not malformed"))
+
+			return
+		}
+
+		if err = clientRequest.Password.Validate(); err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+
+			_, _ = rw.Write([]byte(err.Error()))
+
+			return
+		}
+
+		if err = clientRequest.Username.Validate(); err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+
+			_, _ = rw.Write([]byte(err.Error()))
+
+			return
+		}
+
+		cred, err := oauth.NewCredentialPassword(clientRequest.Password.String())
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			_, _ = rw.Write([]byte(err.Error()))
 
 			return
 		}
-		defer req.Body.Close()
 
-		client, err := oauth.NewClientRequest(reqBody)
-		if err != nil {
-			rw.WriteHeader(http.StatusBadRequest)
-			_, _ = rw.Write([]byte(err.Error()))
-
-			return
-		}
-
-		cred, err := oauth.NewCredentialPassword(client.Password.String())
-		if err != nil {
-			rw.WriteHeader(http.StatusBadRequest)
-			_, _ = rw.Write([]byte(err.Error()))
-
-			return
-		}
-
-		clientCred, err := oauth.NewClientCredential(cred, client.Username.String())
+		clientCred, err := oauth.NewClientCredential(cred, clientRequest.Username.String())
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			_, _ = rw.Write([]byte(err.Error()))
@@ -63,10 +73,10 @@ func NewServer() {
 
 		repo, err := clients.NewRepository(nil)
 		if err != nil {
-			rw.WriteHeader(http.StatusBadRequest)
-			_, _ = rw.Write([]byte("error establishing database connection"))
-
 			log.Println(err.Error())
+
+			rw.WriteHeader(http.StatusInternalServerError)
+			_, _ = rw.Write([]byte("error establishing database connection"))
 
 			return
 		}
@@ -167,7 +177,7 @@ func NewServer() {
 			return
 		}
 
-		rw.Write(oauth.
+		_, _ = rw.Write(oauth.
 			NewPasswordGrantResponse(token).
 			Byte(true),
 		)
