@@ -6,9 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-
+	"log"
 	"oauth-password/pkg/database"
 	"oauth-password/pkg/oauth"
+	"strings"
 )
 
 type Repository struct {
@@ -37,11 +38,17 @@ func (r *Repository) InsertSingle(
 
 	_, err = r.client.ExecContext(
 		ctx,
-		`INSERT INTO public.client_credential (id, data) VALUES (DEFAULT, $1)`,
+		`INSERT INTO client_credential (id, data) VALUES (DEFAULT, $1)`,
 		data,
 	)
 	if err != nil {
-		return nil, err
+		if strings.Contains(err.Error(), `duplicate key value violates unique constraint "client_credential_username_idx"`) {
+			return nil, fmt.Errorf(`username already exists`)
+		}
+
+		log.Println(clientCredential.Username, err)
+
+		return nil, errors.New("unexpected error during insertion of new client")
 	}
 
 	return &Entity{
