@@ -1,9 +1,7 @@
 package database
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"os"
 	"sync"
 
@@ -11,39 +9,33 @@ import (
 )
 
 type Database struct {
-	Ctx context.Context
 	*sql.DB
 }
 
 var once sync.Once
-var instance *Database
 
-func NewDatabase(ctx context.Context) (*Database, error) {
-	once.Do(func() {
-		// https://www.postgresql.org/docs/current/libpq-ssl.html
-		connStr := fmt.Sprintf(
-			"postgresql://%s:%s@%s/%s?sslmode=require",
-			os.Getenv("POSTGRES_USER"),
-			os.Getenv("POSTGRES_PASSWORD"),
-			os.Getenv("POSTGRES_DB"),
-			func() string {
-				if len(os.Getenv("DEBUG")) > 0 {
-					return "127.0.0.1"
-				}
+func DBConnection() (postgresInstance *sql.DB, dbError error) {
+	postgresInstance, dbError = sql.Open("postgres", fmt.Sprintf(
+		"host=%s port=5432 user=%s password=%s dbname=%s sslmode=require",
+		os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_DB"),
+	))
+	if dbError != nil {
+		return
+	}
 
-				return "database"
-			}(),
-		)
-		cnn, err := sql.Open("postgres", connStr)
-		if err != nil {
-			log.Fatal(err)
-		}
+	postgresInstance.SetMaxOpenConns(1)
 
-		instance = &Database{
-			Ctx: ctx,
-			DB:  cnn,
-		}
-	})
+	return postgresInstance, dbError
+}
 
-	return instance, nil
+func NewDatabase() (instance *Database, err error) {
+	cnn, err := DBConnection()
+	instance = &Database{
+		DB: cnn,
+	}
+
+	return instance, err
 }

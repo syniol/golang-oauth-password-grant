@@ -28,8 +28,8 @@ func NewServer() {
 			return
 		}
 
-		var clientRequest *oauth.ClientRequest
-		err := json.NewDecoder(req.Body).Decode(clientRequest)
+		var clientRequest oauth.ClientRequest
+		err := json.NewDecoder(req.Body).Decode(&clientRequest)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			log.Println(err)
@@ -71,7 +71,7 @@ func NewServer() {
 			return
 		}
 
-		repo, err := clients.NewRepository(nil)
+		repo, err := clients.NewRepository()
 		if err != nil {
 			log.Println(err.Error())
 
@@ -81,7 +81,7 @@ func NewServer() {
 			return
 		}
 
-		_, err = repo.InsertSingle(*clientCred)
+		_, err = repo.InsertSingle(context.Background(), *clientCred)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 
@@ -122,9 +122,9 @@ func NewServer() {
 
 		ctx := context.Background()
 
-		repo, _ := clients.NewRepository(ctx)
+		repo, _ := clients.NewRepository()
 
-		userCredentialPassword, err := repo.FindByUsername(pgr.Username)
+		userCredentialPassword, err := repo.FindByUsername(ctx, pgr.Username)
 		if err != nil {
 			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
 

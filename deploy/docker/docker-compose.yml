@@ -1,4 +1,3 @@
-version: "3"
 services:
   proxy:
     image: xyo-api-proxy:latest
@@ -16,7 +15,7 @@ services:
       timeout: 5s
       retries: 3
     networks:
-      - oauth_gateway
+      - oauth_authentication_net
 
   app:
     image: oauth_golang:1.18
@@ -29,17 +28,15 @@ services:
       - database
       - cache
     environment:
+      POSTGRES_HOST: database
       POSTGRES_USER: oauth_usr
       POSTGRES_PASSWORD: DummyPassword1
       POSTGRES_DB: oauth
       REDIS_TLS_CERT_FILE: /usr/local/etc/redis/tls/redis.crt
       REDIS_TLS_KEY_FILE: /usr/local/etc/redis/tls/redis.key
       REDIS_TLS_CA_FILE: /usr/local/etc/redis/tls/ca.crt
-    volumes:
-      - redis_tls:/usr/local/etc/redis/tls
     networks:
-      - oauth_gateway
-      - oauth_authentication
+      - oauth_authentication_net
 
   database:
     image: oauth_postgres:14
@@ -60,7 +57,7 @@ services:
     volumes:
       - database_data:/var/lib/postgresql/data
     networks:
-      - oauth_authentication
+      - oauth_authentication_net
 
   cache:
     image: oauth_redis:6
@@ -76,17 +73,14 @@ services:
       retries: 3
     volumes:
       - cache_data:/data
-      - redis_tls:/usr/local/etc/redis/tls
     networks:
-      - oauth_authentication
+      - oauth_authentication_net
 
 volumes:
   database_data:
+    name: oauth_database_data
   cache_data:
-  redis_tls:
+    name: oauth_cache_data
 
 networks:
-  oauth_gateway:
-    driver: bridge
-  oauth_authentication:
-    driver: bridge
+  oauth_authentication_net:

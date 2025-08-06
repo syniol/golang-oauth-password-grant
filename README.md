@@ -8,16 +8,16 @@ and its native HTTP server.
 ## Clients API
 ```text
 POST  oauth2/clients HTTP/1.1
-Host: 127.0.0.1:8080
+Host: 127.0.0.1
 Content-Type: application/json
 ```
 
 __Request:__
 ```bash
-curl -k --location --request POST 'https://127.0.0.1:8080/oauth2/clients' \
+curl -k --location --request POST 'https://127.0.0.1/oauth2/clients' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "username": "johndoe1",
+    "username": "johndoe2",
     "password": "johnspassword1"
 }'
 ```

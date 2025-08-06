@@ -13,12 +13,8 @@ type Repository struct {
 	client *database.Database
 }
 
-func NewRepository(ctx context.Context) (*Repository, error) {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	db, err := database.NewDatabase(ctx)
+func NewRepository() (*Repository, error) {
+	db, err := database.NewDatabase()
 	if err != nil {
 		return nil, err
 	}
@@ -29,6 +25,7 @@ func NewRepository(ctx context.Context) (*Repository, error) {
 }
 
 func (r *Repository) InsertSingle(
+	ctx context.Context,
 	clientCredential oauth.ClientCredential,
 ) (*Entity, error) {
 	data, err := json.Marshal(clientCredential)
@@ -37,7 +34,7 @@ func (r *Repository) InsertSingle(
 	}
 
 	_, err = r.client.ExecContext(
-		r.client.Ctx,
+		ctx,
 		`INSERT INTO public.client_credential (id, data) VALUES (DEFAULT, $1)`,
 		data,
 	)
@@ -50,16 +47,16 @@ func (r *Repository) InsertSingle(
 	}, nil
 }
 
-func (r *Repository) FindByUsername(username oauth.Username) (*Entity, error) {
+func (r *Repository) FindByUsername(ctx context.Context, username oauth.Username) (*Entity, error) {
 	stmt, err := r.client.PrepareContext(
-		r.client.Ctx,
-		`SELECT id, data FROM public.client_credential WHERE data->>'username' = $1;`,
+		ctx,
+		`SELECT id, data FROM client_credential WHERE data->>'username' = $1;`,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := stmt.QueryContext(r.client.Ctx, username.String())
+	rows, err := stmt.QueryContext(ctx, username.String())
 	if err != nil {
 		return nil, err
 	}
