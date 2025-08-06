@@ -2,10 +2,11 @@ package internal
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	_ "github.com/lib/pq"
 
@@ -17,6 +18,10 @@ import (
 func NewServer() {
 	sm := http.NewServeMux()
 
+	sm.HandleFunc("/healthz", func(wr http.ResponseWriter, req *http.Request) {
+		_, _ = wr.Write([]byte("ok"))
+	})
+
 	sm.HandleFunc("/oauth2/clients", func(rw http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
 			rw.WriteHeader(http.StatusNotFound)
@@ -24,55 +29,64 @@ func NewServer() {
 			return
 		}
 
-		reqBody, err := ioutil.ReadAll(req.Body)
+		var clientRequest oauth.ClientRequest
+		err := json.NewDecoder(req.Body).Decode(&clientRequest)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(err.Error()))
+			log.Println(err)
 
-			return
-		}
-		defer req.Body.Close()
-
-		client, err := oauth.NewClientRequest(reqBody)
-		if err != nil {
-			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(err.Error()))
+			_, _ = rw.Write([]byte("Unable to parse request body, please ensure request body is not malformed"))
 
 			return
 		}
 
-		cred, err := oauth.NewCredentialPassword(client.Password.String())
-		if err != nil {
+		if err = clientRequest.Password.Validate(); err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(err.Error()))
+
+			_, _ = rw.Write([]byte(err.Error()))
 
 			return
 		}
 
-		clientCred, err := oauth.NewClientCredential(cred, client.Username.String())
-		if err != nil {
+		if err = clientRequest.Username.Validate(); err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(err.Error()))
+
+			_, _ = rw.Write([]byte(err.Error()))
 
 			return
 		}
 
-		repo, err := clients.NewRepository(nil)
+		cred, err := oauth.NewCredentialPassword(clientRequest.Password.String())
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte("error establishing database connection"))
+			_, _ = rw.Write([]byte(err.Error()))
 
+			return
+		}
+
+		clientCred, err := oauth.NewClientCredential(cred, clientRequest.Username.String())
+		if err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+			_, _ = rw.Write([]byte(err.Error()))
+
+			return
+		}
+
+		repo, err := clients.NewRepository()
+		if err != nil {
 			log.Println(err.Error())
 
+			rw.WriteHeader(http.StatusInternalServerError)
+			_, _ = rw.Write([]byte("error establishing database connection"))
+
 			return
 		}
 
-		_, err = repo.InsertSingle(*clientCred)
+		_, err = repo.InsertSingle(req.Context(), *clientCred)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 
-			// todo generic error message
-			rw.Write([]byte(err.Error()))
+			_, _ = rw.Write([]byte(err.Error()))
 
 			return
 		}
@@ -81,7 +95,8 @@ func NewServer() {
 			ClientID: clientCred.ClientID,
 		}
 
-		rw.Write(resp.Bytes(true))
+		rw.Header().Add("Content-Type", "application/json")
+		_, _ = rw.Write(resp.Bytes(true))
 	})
 
 	sm.HandleFunc("/oauth2/token", func(rw http.ResponseWriter, req *http.Request) {
@@ -94,7 +109,7 @@ func NewServer() {
 		err := req.ParseForm()
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(fmt.Sprintf("error parsing form request: %s", err.Error())))
+			_, _ = rw.Write([]byte(fmt.Sprintf("error parsing form request: %s", err.Error())))
 
 			return
 		}
@@ -102,18 +117,18 @@ func NewServer() {
 		pgr, err := oauth.NewPasswordGrantRequestWithForm(req.Form)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
+			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
 
 			return
 		}
 
 		ctx := context.Background()
 
-		repo, _ := clients.NewRepository(ctx)
+		repo, _ := clients.NewRepository()
 
-		userCredentialPassword, err := repo.FindByUsername(pgr.Username)
+		userCredentialPassword, err := repo.FindByUsername(ctx, pgr.Username)
 		if err != nil {
-			rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
+			_, _ = rw.Write([]byte(fmt.Sprintf("error: %s", err.Error())))
 
 			return
 		}
@@ -121,9 +136,9 @@ func NewServer() {
 		isVerified := userCredentialPassword.Data.VerifyPassword(pgr.Password.String())
 		if !isVerified {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte(fmt.Sprintf("password: %s is invalid", pgr.Password.String())))
+			_, _ = rw.Write([]byte(fmt.Sprintf("password: %s is invalid", pgr.Password.String())))
 
-			log.Println(err.Error())
+			fmt.Println(err.Error())
 
 			return
 		}
@@ -131,46 +146,50 @@ func NewServer() {
 		tokeniser, err := oauth.NewToken()
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte("unexpected error for token creation service"))
+			_, _ = rw.Write([]byte("unexpected error for token creation service"))
 
-			log.Println(err.Error())
+			fmt.Println(err.Error())
 
 			return
 		}
 
 		token := string(tokeniser.Sign())
 
-		cacheService, err := cache.NewCache(ctx)
+		cacheService, err := cache.NewCache()
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte("unexpected error for token storage service"))
+			_, _ = rw.Write([]byte("unexpected error for token storage service"))
 
-			log.Println(err.Error())
+			fmt.Println(err.Error())
 
 			return
 		}
 
-		err = cacheService.Persist(
+		err = cacheService.PersistWithTimeToLive(
+			req.Context(),
 			userCredentialPassword.Data.ClientID,
 			token,
+			time.Minute*60*60,
 		)
 
 		if err != nil {
-			rw.WriteHeader(http.StatusBadRequest)
-			rw.Write([]byte("unexpected error for token storage service"))
+			fmt.Println(err.Error())
 
-			log.Println(err.Error())
+			rw.WriteHeader(http.StatusBadRequest)
+			_, _ = rw.Write([]byte("unexpected error for token storage service"))
 
 			return
 		}
 
-		rw.Write(oauth.
+		rw.Header().Add("Content-Type", "application/json")
+		_, _ = rw.Write(oauth.
 			NewPasswordGrantResponse(token).
 			Byte(true),
 		)
 	})
 
-	err := http.ListenAndServeTLS(":8080", "server.crt", "server.key", sm)
+	err := http.ListenAndServe(":8080", sm)
+	//err := http.ListenAndServeTLS(":80", "server.crt", "server.key", sm)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

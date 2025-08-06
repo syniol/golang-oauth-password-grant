@@ -1,21 +1,23 @@
-# OAuth 2 Password Grant Type in Golang
-Implementation of standard OAuth V2 for Password Grant type in Golang 
+# OAuth 2.1 Password Grant Type in Golang
+![workflow](https://github.com/syniol/golang-oauth-password-grant/actions/workflows/makefile.yml/badge.svg)
+
+Implementation of standard OAuth 2.1 for Password Grant type in Golang 
 and its native HTTP server.
 
 
 ## Clients API
 ```text
 POST  oauth2/clients HTTP/1.1
-Host: 127.0.0.1:8080
+Host: 127.0.0.1
 Content-Type: application/json
 ```
 
 __Request:__
 ```bash
-curl -k --location --request POST 'https://127.0.0.1:8080/oauth2/clients' \
+curl -k --location --request POST 'https://127.0.0.1/oauth2/clients' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "username": "johndoe1",
+    "username": "johndoe2",
     "password": "johnspassword1"
 }'
 ```
@@ -31,13 +33,13 @@ __Response:__
 ## Token API
 ```text
 POST  oauth2/token HTTP/1.1
-Host: 127.0.0.1:8080
+Host: 127.0.0.1
 Content-Type: application/x-www-form-urlencoded
 ```
 
 __Request:__
 ```bash
-curl -k --location --request POST 'https://127.0.0.1:8080/oauth2/token' \
+curl -k --location --request POST 'https://127.0.0.1/oauth2/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=password' \
 --data-urlencode 'username=johndoe1' \
@@ -71,19 +73,17 @@ local environment. You will need database & cache storage from docker; you could
 
 ![img](https://github.com/syniol/golang-oauth-password-grant/assets/68777073/5c24392a-29df-41c2-8f11-fd32a1053222)
 
-
-
 ### Todos
- * [x] SSL For Postgres
- * [x] SSL & Password for Redis
- * [x] Cert for Creation of Token (Could be from Infra or Inside the code)
- * [x] TLS Server Listener
- * [ ] Use Docker Secret to share passwords
+ * [ ] Add more documents about this repository and RFC Standard for OAuth 2.1 especially for `password_grant`
+ * [ ] Convert Http Error response to JSON response `errors: []`
+ * [ ] Investigate possibility of volume share for Redis & Go (app) to share TLS certs
+ * [ ] Separate the Docker network for proxy and app to exclude Database (Postgres) & Cache (Redis)
+ * [ ] Increase code coverage
 
 
 #### Credits
 Author: [Hadi Tajallaei](mailto:hadi@syniol.com)
 
-Copyright &copy; 2023 Syniol Limited. All rights reserved.
+Copyright &copy; 2023-2025 Syniol Limited. All rights reserved.
 
 _Please see a [LICENSE file](https://github.com/syniol/golang-oauth-password-grant/blob/main/LICENSE)_

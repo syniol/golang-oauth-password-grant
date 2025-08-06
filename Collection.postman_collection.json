@@ -1,10 +1,66 @@
 {
 	"info": {
-		"_postman_id": "8c2e7d7e-f96f-406c-99ff-632be03e1271",
+		"_postman_id": "59bf083c-a877-459e-87f1-3786cd8b3dd6",
 		"name": "Oauth 2 Password Grant RESTful API Collection",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41408414"
 	},
 	"item": [
+		{
+			"name": "Healthz",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://127.0.0.1/healthz",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"path": [
+						"healthz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Clients",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"johndoe\",\n    \"password\": \"MyPassword!\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://127.0.0.1/oauth2/clients",
+					"protocol": "https",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"path": [
+						"oauth2",
+						"clients"
+					]
+				}
+			},
+			"response": []
+		},
 		{
 			"name": "Token Request",
 			"request": {
@@ -23,7 +79,7 @@
 						},
 						{
 							"key": "username",
-							"value": "johndoe1",
+							"value": "johndoe",
 							"type": "default"
 						},
 						{
@@ -34,51 +90,17 @@
 					]
 				},
 				"url": {
-					"raw": "127.0.0.1:8080/oauth2/token",
+					"raw": "https://127.0.0.1/oauth2/token",
+					"protocol": "https",
 					"host": [
 						"127",
 						"0",
 						"0",
 						"1"
 					],
-					"port": "8080",
 					"path": [
-						"oauth",
+						"oauth2",
 						"token"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Clients [Create]",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"username\": \"johndoe1\",\n    \"password\": \"MyPassword!\"\n}\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "127.0.0.1:8080/oauth2/clients",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8080",
-					"path": [
-						"oauth",
-						"clients"
 					]
 				}
 			},

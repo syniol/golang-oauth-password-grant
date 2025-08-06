@@ -32,6 +32,7 @@ func (c *ClientRequest) String() string {
 	return string(res)
 }
 
+// NewClientRequest Deprecated
 func NewClientRequest(payload []byte) (*ClientRequest, error) {
 	var client *ClientRequest
 

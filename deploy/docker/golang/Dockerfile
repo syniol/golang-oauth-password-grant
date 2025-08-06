@@ -29,6 +29,14 @@ RUN addgroup -S myapp \
 RUN chown myapp:myapp server.crt  \
     && chown myapp:myapp server.key
 
+COPY ./deploy/docker/redis/tls/ /usr/local/etc/redis/tls/
+
+WORKDIR /usr/local/etc/redis/tls
+
+RUN chown myapp:myapp redis.crt  \
+    && chown myapp:myapp redis.key \
+    && chown myapp:myapp ca.crt
+
 
 
 FROM scratch
@@ -39,6 +47,9 @@ COPY --from=builder /var/local/app/server.key .
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=builder /etc/passwd /etc/passwd
+
+COPY --from=builder /usr/local/etc/redis/tls/ /usr/local/etc/redis/tls/
+
 USER myapp
 
 ENTRYPOINT ["/restapi"]
