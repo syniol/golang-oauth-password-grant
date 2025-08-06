@@ -2,7 +2,9 @@ package clients
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"oauth-password/pkg/database"
@@ -56,21 +58,14 @@ func (r *Repository) FindByUsername(ctx context.Context, username oauth.Username
 		return nil, err
 	}
 
-	rows, err := stmt.QueryContext(ctx, username.String())
-	if err != nil {
+	var id uint
+	var dataColumn []byte
+	err = stmt.QueryRowContext(ctx, username.String()).Scan(&id, &dataColumn)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	var id uint
-	var dataColumn []byte
-	for rows.Next() {
-		err = rows.Scan(&id, &dataColumn)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if len(dataColumn) == 0 {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("unable to find username: %s", username)
 	}
 

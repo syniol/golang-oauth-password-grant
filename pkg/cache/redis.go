@@ -14,11 +14,10 @@ import (
 
 type RedisAdapter struct {
 	client *redis.Client
-	ctx    context.Context
 }
 
-func (ra *RedisAdapter) Persist(key, value string) error {
-	res := ra.client.Set(ra.ctx, key, value, time.Hour)
+func (ra *RedisAdapter) Persist(ctx context.Context, key, value string) error {
+	res := ra.client.Set(ctx, key, value, time.Hour)
 	if res.Err() != nil {
 		return res.Err()
 	}
@@ -26,8 +25,8 @@ func (ra *RedisAdapter) Persist(key, value string) error {
 	return nil
 }
 
-func (ra *RedisAdapter) LookUp(key string) (string, error) {
-	res := ra.client.Get(ra.ctx, key)
+func (ra *RedisAdapter) LookUp(ctx context.Context, key string) (string, error) {
+	res := ra.client.Get(ctx, key)
 	if res.Err() != nil {
 		return "", res.Err()
 	}
@@ -38,7 +37,7 @@ func (ra *RedisAdapter) LookUp(key string) (string, error) {
 var redisClient *redis.Client
 var once sync.Once
 
-func newRedisClient(ctx context.Context) Cache {
+func newRedisClient() Cache {
 	once.Do(func() {
 		redisClient = redis.NewClient(&redis.Options{
 			Addr: func() string {
@@ -78,6 +77,5 @@ func newRedisClient(ctx context.Context) Cache {
 
 	return &RedisAdapter{
 		client: redisClient,
-		ctx:    ctx,
 	}
 }

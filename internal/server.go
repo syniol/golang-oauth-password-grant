@@ -136,7 +136,7 @@ func NewServer() {
 			rw.WriteHeader(http.StatusBadRequest)
 			_, _ = rw.Write([]byte(fmt.Sprintf("password: %s is invalid", pgr.Password.String())))
 
-			log.Println(err.Error())
+			fmt.Println(err.Error())
 
 			return
 		}
@@ -146,24 +146,25 @@ func NewServer() {
 			rw.WriteHeader(http.StatusBadRequest)
 			_, _ = rw.Write([]byte("unexpected error for token creation service"))
 
-			log.Println(err.Error())
+			fmt.Println(err.Error())
 
 			return
 		}
 
 		token := string(tokeniser.Sign())
 
-		cacheService, err := cache.NewCache(ctx)
+		cacheService, err := cache.NewCache()
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			_, _ = rw.Write([]byte("unexpected error for token storage service"))
 
-			log.Println(err.Error())
+			fmt.Println(err.Error())
 
 			return
 		}
 
 		err = cacheService.Persist(
+			req.Context(),
 			userCredentialPassword.Data.ClientID,
 			token,
 		)
@@ -172,7 +173,7 @@ func NewServer() {
 			rw.WriteHeader(http.StatusBadRequest)
 			_, _ = rw.Write([]byte("unexpected error for token storage service"))
 
-			log.Println(err.Error())
+			fmt.Println(err.Error())
 
 			return
 		}
