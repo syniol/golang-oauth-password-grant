@@ -94,6 +94,7 @@ func NewServer() {
 			ClientID: clientCred.ClientID,
 		}
 
+		rw.Header().Add("Content-Type", "application/json")
 		_, _ = rw.Write(resp.Bytes(true))
 	})
 
@@ -178,6 +179,7 @@ func NewServer() {
 			return
 		}
 
+		rw.Header().Add("Content-Type", "application/json")
 		_, _ = rw.Write(oauth.
 			NewPasswordGrantResponse(token).
 			Byte(true),
