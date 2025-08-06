@@ -9,7 +9,7 @@ build: # Builds all necessary Docker files for for OAuth Authentication services
 
 .PHONY: deploy
 deploy: # Deploys Services for OAuth Authentication
-	docker-compose -f ./deploy/docker/docker-compose.yml build --no-cache
+	docker-compose -f ./deploy/docker/docker-compose.yml build
 	docker-compose -f ./deploy/docker/docker-compose.yml up -d
 
 

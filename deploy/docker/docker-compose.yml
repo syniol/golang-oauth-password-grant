@@ -1,7 +1,7 @@
 version: "3"
 services:
   proxy:
-    image: oauth_nginx:latest
+    image: xyo-api-proxy:latest
     build:
       context: ../..
       dockerfile: deploy/docker/nginx/Dockerfile
@@ -11,7 +11,7 @@ services:
       - "80:80"
       - "443:443"
     healthcheck:
-      test: curl -s -o /dev/null -w "%{http_code}" http://proxy/healthz | grep 200 || exit 1
+      test: curl -k -s -o /dev/null -w "%{http_code}" https://proxy/healthz | grep 200 || exit 1
       interval: 10s
       timeout: 5s
       retries: 3
@@ -24,16 +24,19 @@ services:
       context: ../..
       dockerfile: deploy/docker/golang/Dockerfile
     container_name: oauth_app
+    restart: unless-stopped
+    depends_on:
+      - database
+      - cache
     environment:
       POSTGRES_USER: oauth_usr
       POSTGRES_PASSWORD: DummyPassword1
       POSTGRES_DB: oauth
-      REDIS_PASSWORD: SyniolIsTheFuture
-    healthcheck:
-      test: curl -s -o /dev/null -w "%{http_code}" http://app:8080/healthz | grep 200 || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      REDIS_TLS_CERT_FILE: /usr/local/etc/redis/tls/redis.crt
+      REDIS_TLS_KEY_FILE: /usr/local/etc/redis/tls/redis.key
+      REDIS_TLS_CA_FILE: /usr/local/etc/redis/tls/ca.crt
+    volumes:
+      - redis_tls:/usr/local/etc/redis/tls
     networks:
       - oauth_gateway
       - oauth_authentication
@@ -44,6 +47,7 @@ services:
       context: ../..
       dockerfile: deploy/docker/postgres/Dockerfile
     container_name: oauth_db
+    restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: DummyPassword1
       POSTGRES_USER: oauth_usr
@@ -64,8 +68,7 @@ services:
       context: ../..
       dockerfile: deploy/docker/redis/Dockerfile
     container_name: oauth_cache
-    environment:
-      REDIS_PASSWORD: SyniolIsTheFuture
+    restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "redis-cli --tls --cert $${REDIS_TLS_CERT_FILE} --key $${REDIS_TLS_KEY_FILE} --cacert $${REDIS_TLS_CA_FILE} --insecure PING | grep PONG" ]
       interval: 10s
@@ -73,12 +76,14 @@ services:
       retries: 3
     volumes:
       - cache_data:/data
+      - redis_tls:/usr/local/etc/redis/tls
     networks:
       - oauth_authentication
 
 volumes:
   database_data:
   cache_data:
+  redis_tls:
 
 networks:
   oauth_gateway:
