@@ -24,7 +24,7 @@ ok
 
 
 ## Clients API
-This endpoint is responsible for creating a new client/user to be inserted in database.
+Clients endpoint is responsible for creating a new client/user to be inserted in database.
 
 ```text
 POST  oauth2/clients HTTP/1.1
@@ -71,7 +71,7 @@ curl -k --location --request POST 'https://127.0.0.1/oauth2/token' \
 __Response:__
 ```json
 {
-  "access_token": "MmVjZGFiNmY4Y2E2OTQ1ZWNmMGQyNmZlODZhYWM5YzFhNDliYzZiNzNkNmY2MjBmYThiMzM3NTEyODE1ZTc1YjNiZTcxODI3YjFjZDkzZDYyODRkODljZjdjMDU3NWY4M2Y2NjdiODg4ZTliZDIwMzlmMTRlYjkxZGEyYmFkMDM=",
+  "access_token": "MmVjZGFiNmY4Y2E2OTQ1ZWNmMGYz...FkMDM=",
   "token_type": "Bearer",
   "expires_in": 3600
 }
@@ -79,6 +79,8 @@ __Response:__
 
 
 ## Up & Running
+There are a few commands available, you could explore the available options by running `make`. This 
+should give you a glossary of available methods. For example to deploy the service, you can run:
 
 ```bash
   make deploy
@@ -94,6 +96,7 @@ local environment. You will need database & cache storage from docker; you could
 ```
 
 ![img](https://github.com/syniol/golang-oauth-password-grant/assets/68777073/5c24392a-29df-41c2-8f11-fd32a1053222)
+
 
 ### Todos
  * [ ] Add more documents about this repository and RFC Standard for OAuth 2.1 especially for `password_grant`
