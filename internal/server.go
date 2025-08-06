@@ -81,7 +81,7 @@ func NewServer() {
 			return
 		}
 
-		_, err = repo.InsertSingle(context.Background(), *clientCred)
+		_, err = repo.InsertSingle(req.Context(), *clientCred)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 

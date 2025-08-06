@@ -31,11 +31,15 @@ func DBConnection() (postgresInstance *sql.DB, dbError error) {
 	return postgresInstance, dbError
 }
 
-func NewDatabase() (instance *Database, err error) {
-	cnn, err := DBConnection()
-	instance = &Database{
-		DB: cnn,
-	}
+var cnn *sql.DB
 
-	return instance, err
+func NewDatabase() (*Database, error) {
+	var dbError error
+	once.Do(func() {
+		cnn, dbError = DBConnection()
+	})
+
+	return &Database{
+		DB: cnn,
+	}, dbError
 }
