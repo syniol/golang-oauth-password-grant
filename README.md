@@ -1,11 +1,31 @@
 # OAuth 2.1 Password Grant Type in Golang
-![workflow](https://github.com/syniol/golang-oauth-password-grant/actions/workflows/makefile.yml/badge.svg)
+![workflow](https://github.com/syniol/golang-oauth2/actions/workflows/makefile.yml/badge.svg)
 
-Implementation of standard OAuth 2.1 for Password Grant type in Golang 
-and its native HTTP server.
+Implementation of standard OAuth 2.1 for Password Grant type in Golang and its native HTTP server.
+
+
+## Healthcheck API
+```text
+GET  oauth2/healthz HTTP/1.1
+Host: 127.0.0.1
+Content-Type: text/plain
+```
+
+__Request:__
+```bash
+curl -k --location --request GET 'https://127.0.0.1/healthz'
+```
+
+__Response:__
+Status code `200` (OK) and a simple body response `ok` indicates API is working and operational.
+```text
+ok
+```
 
 
 ## Clients API
+This endpoint is responsible for creating a new client/user to be inserted in database.
+
 ```text
 POST  oauth2/clients HTTP/1.1
 Host: 127.0.0.1
@@ -17,7 +37,7 @@ __Request:__
 curl -k --location --request POST 'https://127.0.0.1/oauth2/clients' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "username": "johndoe2",
+    "username": "johndoe",
     "password": "johnspassword1"
 }'
 ```
@@ -31,6 +51,8 @@ __Response:__
 
 
 ## Token API
+After client registration you can create a token sending a `POST` request to this endpoint.
+
 ```text
 POST  oauth2/token HTTP/1.1
 Host: 127.0.0.1
@@ -42,7 +64,7 @@ __Request:__
 curl -k --location --request POST 'https://127.0.0.1/oauth2/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=password' \
---data-urlencode 'username=johndoe1' \
+--data-urlencode 'username=johndoe' \
 --data-urlencode 'password=johnspassword1'
 ```
 
