@@ -39,7 +39,7 @@ Content-Type: application/x-www-form-urlencoded
 
 __Request:__
 ```bash
-curl -k --location --request POST 'https://127.0.0.1:8080/oauth2/token' \
+curl -k --location --request POST 'https://127.0.0.1/oauth2/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=password' \
 --data-urlencode 'username=johndoe1' \
@@ -86,6 +86,6 @@ local environment. You will need database & cache storage from docker; you could
 #### Credits
 Author: [Hadi Tajallaei](mailto:hadi@syniol.com)
 
-Copyright &copy; 2023 Syniol Limited. All rights reserved.
+Copyright &copy; 2023-2025 Syniol Limited. All rights reserved.
 
 _Please see a [LICENSE file](https://github.com/syniol/golang-oauth-password-grant/blob/main/LICENSE)_
