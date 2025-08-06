@@ -75,6 +75,7 @@ local environment. You will need database & cache storage from docker; you could
 
 ### Todos
  * [ ] Add more documents about this repository and RFC Standard for OAuth 2.1 especially for `password_grant`
+ * [ ] Convert Http Error response to JSON response `errors: []`
  * [ ] Investigate possibility of volume share for Redis & Go (app) to share TLS certs
  * [ ] Separate the Docker network for proxy and app to exclude Database (Postgres) & Cache (Redis)
  * [ ] Increase code coverage
