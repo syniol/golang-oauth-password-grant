@@ -73,6 +73,12 @@ local environment. You will need database & cache storage from docker; you could
 
 ![img](https://github.com/syniol/golang-oauth-password-grant/assets/68777073/5c24392a-29df-41c2-8f11-fd32a1053222)
 
+### Todos
+ * [ ] Add more documents about this repository and RFC Standard for OAuth 2.1 especially for `password_grant`
+ * [ ] Investigate possibility of volume share for Redis & Go (app) to share TLS certs
+ * [ ] Separate the Docker network for proxy and app to exclude Database (Postgres) & Cache (Redis)
+ * [ ] Increase code coverage
+
 
 #### Credits
 Author: [Hadi Tajallaei](mailto:hadi@syniol.com)
