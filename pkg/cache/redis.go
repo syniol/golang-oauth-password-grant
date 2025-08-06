@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -34,40 +35,45 @@ func (ra *RedisAdapter) LookUp(key string) (string, error) {
 	return res.Val(), nil
 }
 
+var redisClient *redis.Client
+var once sync.Once
+
 func newRedisClient(ctx context.Context) Cache {
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: func() string {
-			if len(os.Getenv("DEBUG")) > 0 {
-				return "127.0.0.1:6379"
+	once.Do(func() {
+		redisClient = redis.NewClient(&redis.Options{
+			Addr: func() string {
+				if len(os.Getenv("DEBUG")) > 0 {
+					return "127.0.0.1:6379"
 
-			}
+				}
 
-			return "cache:6379"
-		}(),
-		DB: 0, // use default DB
-		TLSConfig: (func() *tls.Config {
-			caCert, err := os.ReadFile(os.Getenv("REDIS_TLS_CA_FILE"))
-			if err != nil {
-				log.Fatal("error loading redis TLS CA Certificate", err)
-			}
+				return "cache:6379"
+			}(),
+			DB: 0, // use default DB
+			TLSConfig: (func() *tls.Config {
+				caCert, err := os.ReadFile(os.Getenv("REDIS_TLS_CA_FILE"))
+				if err != nil {
+					log.Fatal("error loading redis TLS CA Certificate", err)
+				}
 
-			caCertPool := x509.NewCertPool()
-			caCertPool.AppendCertsFromPEM(caCert)
+				caCertPool := x509.NewCertPool()
+				caCertPool.AppendCertsFromPEM(caCert)
 
-			cert, err := tls.LoadX509KeyPair(
-				os.Getenv("REDIS_TLS_CERT_FILE"),
-				os.Getenv("REDIS_TLS_KEY_FILE"),
-			)
-			if err != nil {
-				log.Fatal("error loading redis TLS Key and Cert Pair Certificate", err)
-			}
+				cert, err := tls.LoadX509KeyPair(
+					os.Getenv("REDIS_TLS_CERT_FILE"),
+					os.Getenv("REDIS_TLS_KEY_FILE"),
+				)
+				if err != nil {
+					log.Fatal("error loading redis TLS Key and Cert Pair Certificate", err)
+				}
 
-			return &tls.Config{
-				RootCAs:            caCertPool,
-				Certificates:       []tls.Certificate{cert},
-				InsecureSkipVerify: true,
-			}
-		})(),
+				return &tls.Config{
+					RootCAs:            caCertPool,
+					Certificates:       []tls.Certificate{cert},
+					InsecureSkipVerify: true,
+				}
+			})(),
+		})
 	})
 
 	return &RedisAdapter{
