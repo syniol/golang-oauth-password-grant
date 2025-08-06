@@ -74,15 +74,6 @@ local environment. You will need database & cache storage from docker; you could
 ![img](https://github.com/syniol/golang-oauth-password-grant/assets/68777073/5c24392a-29df-41c2-8f11-fd32a1053222)
 
 
-
-### Todos
- * [x] SSL For Postgres
- * [x] SSL & Password for Redis
- * [x] Cert for Creation of Token (Could be from Infra or Inside the code)
- * [x] TLS Server Listener
- * [ ] Use Docker Secret to share passwords
-
-
 #### Credits
 Author: [Hadi Tajallaei](mailto:hadi@syniol.com)
 
