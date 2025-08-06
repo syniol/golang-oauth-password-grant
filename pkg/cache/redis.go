@@ -24,6 +24,14 @@ func (ra *RedisAdapter) Persist(ctx context.Context, key, value string) error {
 
 	return nil
 }
+func (ra *RedisAdapter) PersistWithTimeToLive(ctx context.Context, key, value string, ttl time.Duration) error {
+	res := ra.client.SetEx(ctx, key, value, ttl)
+	if res.Err() != nil {
+		return res.Err()
+	}
+
+	return nil
+}
 
 func (ra *RedisAdapter) LookUp(ctx context.Context, key string) (string, error) {
 	res := ra.client.Get(ctx, key)

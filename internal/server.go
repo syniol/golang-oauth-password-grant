@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	_ "github.com/lib/pq"
 
@@ -164,17 +165,18 @@ func NewServer() {
 			return
 		}
 
-		err = cacheService.Persist(
+		err = cacheService.PersistWithTimeToLive(
 			req.Context(),
 			userCredentialPassword.Data.ClientID,
 			token,
+			time.Minute*60*60,
 		)
 
 		if err != nil {
+			fmt.Println(err.Error())
+
 			rw.WriteHeader(http.StatusBadRequest)
 			_, _ = rw.Write([]byte("unexpected error for token storage service"))
-
-			fmt.Println(err.Error())
 
 			return
 		}
